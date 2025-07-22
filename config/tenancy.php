@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Stancl\Tenancy\Database\Models\Domain;
-use Stancl\Tenancy\Database\Models\Tenant;
+use App\Models\Tenant;
 
 return [
     'tenant_model' => Tenant::class,
@@ -51,7 +51,7 @@ return [
          * Tenant database names are created like this:
          * prefix + tenant_id + suffix.
          */
-        'prefix' => 'tenant',
+        'prefix' => '',
         'suffix' => '',
 
         /**

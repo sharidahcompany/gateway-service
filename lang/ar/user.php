@@ -1,8 +1,6 @@
 <?php
 
 return [
-   'active'=>'نشط',
-   'inactive'=>'غير نشط',
-   'male'=>'ذكر',
-   'female'=>'أنثى',
+    'update.success' => 'تم تحديث البيانات بنجاح.',
+    'delete.success' => 'تم حذف المستخدم بنجاح.',
 ];

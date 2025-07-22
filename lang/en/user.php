@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'active'=>'active',
-    'inactive'=>'inactive',
-    'male'=>'Male',
-    'female'=>'Female',
+    'update.success' => 'Profile data has been updated successfully.',
+    'delete.success' => 'User has been deleted successfully.',
 ];

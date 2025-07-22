@@ -19,11 +19,5 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-Route::middleware([
-    'api',
-    // InitializeTenancyByDomain::class,
-    // PreventAccessFromCentralDomains::class,
-    InitializeTenancyByRequestData::class,
-])->group(function () {
-    require_once __DIR__ . '/v1/tenant.php';
-});
+
+require_once __DIR__ . '/v1/tenant.php';

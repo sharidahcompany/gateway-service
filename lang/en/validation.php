@@ -228,6 +228,7 @@ return [
         'q'                     => 'Search',
         'link'                  => 'Link',
         'slug'                  => 'Slug',
+        'status'                => 'Status',
     ],
 
 ];
