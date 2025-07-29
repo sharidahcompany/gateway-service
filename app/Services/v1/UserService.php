@@ -15,6 +15,11 @@ class UserService
 
     }
 
+    public function index()
+    {
+        return $this->userRepo->index();
+    }
+
     public function create(array $data): User
     {
         return DB::transaction(function () use ($data) {
@@ -23,6 +28,8 @@ class UserService
             unset($data['avatar']);
 
             $data['password'] = Hash::make($data['password']);
+
+            $data['status'] = $data['status'] ?? 'active';
 
             $user = $this->userRepo->create($data);
 

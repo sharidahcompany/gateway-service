@@ -19,7 +19,6 @@ class TenantService
 
     public function create(array $data): Tenant
     {
-        return DB::transaction(function () use ($data) {
             $logo = $data['logo'] ?? null;
 
             unset($data['logo']);
@@ -31,13 +30,11 @@ class TenantService
             }
 
             return $tenant;
-        });
 
-     }
+    }
 
     public function update(int $id, array $data): Tenant
     {
-        return DB::transaction(function () use ($id, $data) {
             $logo = $data['logo'] ?? null;
 
             unset($data['logo']);
@@ -50,11 +47,11 @@ class TenantService
             }
 
             return $tenant;
-        });
     }
 
-    public function delete(array $ids) {
+    public function delete(array $ids)
+    {
+
         return $this->tenantRepository->delete($ids);
     }
-
 }

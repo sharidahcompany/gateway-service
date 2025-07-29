@@ -7,6 +7,7 @@ use App\Http\Requests\Common\DeleteMultipleRequest;
 use App\Http\Requests\Tenant\CreateTenantRequest;
 use App\Http\Requests\Tenant\UpdateTenantRequest;
 use App\Http\Resources\TenantResource;
+use App\Models\User;
 use App\Services\v1\TenantService;
 
 class TenantController extends Controller
@@ -20,6 +21,22 @@ class TenantController extends Controller
         $data = $request->validated();
 
         $tenant = $this->tenantService->create($data);
+
+        $user = auth()->user();
+
+        $tenant->users()->attach($user['id']);
+
+        $tenant->run(function () use ($user) {
+            User::create([
+                'first_name' => $user->first_name,
+                'last_name'  => $user->last_name,
+                'username'   => $user->username,
+                'email'      => $user->email,
+                'phone'      => $user->phone,
+                'password'   => $user->password,
+                'status'     => $user->status ?? 'active',
+            ]);
+        });
 
         return (new TenantResource($tenant))->additional(['message' => trans('tenant.create.success')])
             ->response()

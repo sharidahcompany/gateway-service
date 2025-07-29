@@ -21,6 +21,7 @@ class CreateTenantsTable extends Migration
             $table->json('name');
             $table->string('commercial_number')->unique();
             $table->string('tax_number')->unique();
+            $table->json('data')->nullable();
 
             $table->timestamps();
          });

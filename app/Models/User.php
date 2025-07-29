@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\MediaLibrary\HasMedia;
@@ -38,4 +39,9 @@ class User extends Authenticatable implements HasMedia, JWTSubject
     public function registerMediaCollections(Media $media = null): void {
         $this->addMediaCollection('avatar')->singleFile();
     }
+
+    public function tenants(): BelongsToMany {
+        return $this->belongsToMany(Tenant::class);
+    }
+
 }

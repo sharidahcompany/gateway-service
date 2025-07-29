@@ -22,7 +22,8 @@ class CreateTenantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'required|array',
+            'name.*' => 'required|string|max:255',
             'commercial_number' => 'nullable|string|max:255|unique:tenants,commercial_number',
             'tax_number' => 'nullable|string|max:255|unique:tenants,tax_number',
         ];

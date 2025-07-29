@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Tenant;
+namespace App\Http\Requests\Plan;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTenantRequest extends FormRequest
+class UpdatePlanRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,13 +21,12 @@ class UpdateTenantRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->route('tenant')?->id;
-
         return [
-            'name' => 'required|array',
-            'name.*' => 'required|string|max:255',
-            'commercial_number' => "nullable|string|max:255|unique:tenants,commercial_number,{$id}",
-            'tax_number' => "nullable|string|max:255|unique:tenants,tax_number,{$id}",
+            'name' => 'sometimes|array',
+            'name.*' => 'sometimes|string',
+            'description' => 'sometimes|array',
+            'description.*' => 'sometimes|string',
+            'status' => 'sometimes|in:active,inactive',
         ];
     }
 }

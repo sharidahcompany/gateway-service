@@ -14,7 +14,9 @@ class UserController extends Controller
     public function __construct(protected UserService $user_service) {}
 
     public function index() {
+        $users = $this->user_service->index();
 
+        return UserResource::collection($users)->response()->setStatusCode(200);
     }
 
     public function store(RegisterRequest $request)

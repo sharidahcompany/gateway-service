@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\DB;
 
 class UserRepository
 {
+    public function index()
+    {
+        return User::latest()->paginate(25);
+    }
+
     public function create(array $data): User {
         return User::create($data);
     }
