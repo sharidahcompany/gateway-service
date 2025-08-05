@@ -50,7 +50,7 @@ jobs:
 
           if [ ! -d ".git" ]; then
             echo "No git repo found. Cloning..."
-            git clone https://github.com/sharidahco/getway_service .
+            git clone https://github.com/sharidahco/gateway_service .
           else
             echo "Git repo found. Pulling latest changes..."
             git pull origin main
