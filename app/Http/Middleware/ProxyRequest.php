@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Middleware;
 
@@ -8,54 +8,63 @@ use Illuminate\Support\Facades\Http;
 
 class ProxyRequest
 {
-public function handle(Request $request, Closure $next, string $serviceUrl)
-{
- // Collect and filter headers
-$headers = collect($request->headers->all())
-->except(['host', 'content-length', 'cookie'])
-->map(fn($values) => $values[0] ?? '')
-->toArray();
+    public function handle(Request $request, Closure $next, string $serviceUrl)
+    {
+        // ---- HEADERS ----
+        $headers = collect($request->headers->all())
+            ->except(['host', 'content-length', 'cookie'])
+            ->map(fn($values) => $values[0] ?? '')
+            ->toArray();
 
-     
+        // ---- BASE OPTIONS ----
+        $options = [
+            'query' => $request->query(),
+            'headers' => $headers,
+        ];
 
-// Prepare options depending on request type
-$options = ['query' => $request->query()];
+        // ---- BODY TYPES ----
+        $contentType = $request->header('Content-Type', '');
 
-if ($request->isJson()) {
-$options['json'] = $request->json()->all();
-} elseif (str_starts_with($request->header('Content-Type', ''), 'multipart/form-data')) {
-$options['multipart'] = collect($request->allFiles())->map(function ($file, $key) {
-return [
-'name' => $key,
-'contents' => fopen($file->getRealPath(), 'r'),
-'filename' => $file->getClientOriginalName(),
-];
-})->values()->all();
+        if ($request->isJson()) {
+            $options['json'] = $request->json()->all();
+        } elseif (str_starts_with($contentType, 'multipart/form-data')) {
+            $options['multipart'] = [];
 
-foreach ($request->except(array_keys($request->allFiles())) as $key => $value) {
-$options['multipart'][] = [
-'name' => $key,
-'contents' => $value,
-];
-}
-} else {
-$options['form_params'] = $request->all();
-}
+            foreach ($request->allFiles() as $key => $file) {
+                $options['multipart'][] = [
+                    'name' => $key,
+                    'contents' => fopen($file->getRealPath(), 'r'),
+                    'filename' => $file->getClientOriginalName(),
+                    'headers' => [
+                        'Content-Type' => $file->getMimeType(),
+                    ],
+                ];
+            }
 
-// 👇 get the path captured by the route
-$proxiedPath = $request->route('path') ?? '';
-$url = rtrim($serviceUrl, '/') . '/' . ltrim($proxiedPath, '/');
+            foreach ($request->except(array_keys($request->allFiles())) as $key => $value) {
+                $options['multipart'][] = [
+                    'name' => $key,
+                    'contents' => $value,
+                ];
+            }
+        } else {
+            $options['form_params'] = $request->all();
+        }
 
-// Forward request to service
-$response = Http::withHeaders($headers)
-->send($request->method(), $url, $options);
+        // ---- BUILD TARGET URL ----
+        $proxiedPath = $request->route('path') ?? '';
+        $url = rtrim($serviceUrl, '/') . '/' . ltrim($proxiedPath, '/');
 
-// Return service response
-return response($response->body(), $response->status())
-->withHeaders(
-collect($response->headers())
-->except(['transfer-encoding', 'content-encoding', 'content-length'])
-->toArray()
-);
-}
+        // ---- SEND ----
+        $response = Http::withOptions(['verify' => false]) // optional
+            ->send($request->method(), $url, $options);
+
+        // ---- RETURN RESPONSE ----
+        return response($response->body(), $response->status())
+            ->withHeaders(
+                collect($response->headers())
+                    ->except(['transfer-encoding', 'content-encoding', 'content-length'])
+                    ->toArray()
+            );
+    }
 }

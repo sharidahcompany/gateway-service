@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
@@ -69,7 +68,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase, HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('logo');
+        $this->addMediaCollection('logo')->singleFile();
     }
 
 
@@ -77,5 +76,5 @@ class Tenant extends BaseTenant implements TenantWithDatabase, HasMedia
     public function users()
     {
         return $this->belongsToMany(User::class, 'tenant_user', 'tenant_id', 'user_id');
-     }
+    }
 }

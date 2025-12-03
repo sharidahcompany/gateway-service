@@ -21,7 +21,6 @@ class UpdateTenantRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->route('tenant')?->id;
 
         return [
             'name' => ['sometimes', 'array'],

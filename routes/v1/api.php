@@ -24,6 +24,7 @@ Route::prefix('v1')->middleware([
 
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');
 
+
     Route::apiResource('plans', PlanController::class)->only('index');
 
     Route::apiResource('features', FeatureController::class)->only('index');
@@ -42,6 +43,8 @@ Route::prefix('v1')->middleware([
         Route::apiResource('users', UserController::class);
 
         Route::apiResource('tenants', TenantController::class)->except('index', 'show');
+        Route::post('tenants/upload-logo', [TenantController::class, 'upload_logo']);
+        Route::get('tenants/delete-logo', [TenantController::class, 'delete_logo']);
 
         Route::delete('tenants', [TenantController::class, 'destroy_bulk']);
 

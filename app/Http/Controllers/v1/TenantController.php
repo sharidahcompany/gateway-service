@@ -9,7 +9,9 @@ use App\Http\Requests\Tenant\UpdateTenantRequest;
 use App\Http\Resources\TenantResource;
 use App\Http\Services\v1\Kafka\KafkaProducerService;
 use App\Http\Services\v1\TenantService;
+use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
@@ -50,6 +52,15 @@ class TenantController extends Controller
             ->setStatusCode(201);
     }
 
+    public function show(string $id)
+    {
+        $tenant = Tenant::findOrFail($id);
+        return response()->json([
+            'data' => $tenant,
+            'logo' => $tenant->getFirstMediaUrl('logo'),
+        ]);
+    }
+
     public function update(UpdateTenantRequest $request, int $id)
     {
         $data = $request->validated();
@@ -69,5 +80,37 @@ class TenantController extends Controller
         $this->tenantService->delete($validated['ids']);
 
         return response()->json(['message' => trans('tenant.delete.success')], 200);
+    }
+
+    public function upload_logo(Request $request)
+    {
+        $request->validate([
+            'image' => ['required', 'image', 'max:2048'],
+        ]);
+
+        $tenant = tenant();
+
+        $tenant->clearMediaCollection('logo');
+
+        $media = $tenant
+            ->addMediaFromRequest('image')
+            ->usingFileName('logo_' . time() . '.' . $request->image->extension())
+            ->toMediaCollection('logo');
+
+        return response()->json([
+            'message' => 'Logo uploaded successfully',
+            'logo' => $media->getFullUrl(),
+        ]);
+    }
+
+    public function delete_logo(Request $request)
+    {
+        $tenant = tenant();
+
+        $tenant->clearMediaCollection('logo');
+
+        return response()->json([
+            'message' => trans('crud.deleted'),
+        ]);
     }
 }
