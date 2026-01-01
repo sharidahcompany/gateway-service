@@ -11,10 +11,7 @@ class TenantRepository
     /**
      * Create a new class instance.
      */
-    public function __construct()
-    {
-
-    }
+    public function __construct() {}
 
     public function create(array $data): Tenant
     {
@@ -26,13 +23,13 @@ class TenantRepository
         $tenant = Tenant::find($id);
 
         if (!$tenant) {
-            Throw new ModelNotFoundException("Tenant {$id} not found!");
+            throw new ModelNotFoundException("Tenant {$id} not found!");
         }
 
         return $tenant;
     }
 
-    public function update(int $id, array $data): Tenant
+    public function update(string $id, array $data): Tenant
     {
         $tenant = $this->find($id);
 
@@ -41,10 +38,10 @@ class TenantRepository
         return $tenant;
     }
 
-    public function delete(array $ids): Bool {
+    public function delete(array $ids): Bool
+    {
         return DB::transaction(function () use ($ids) {
             return Tenant::whereIn('id', $ids)->delete() > 0;
         });
     }
-
 }

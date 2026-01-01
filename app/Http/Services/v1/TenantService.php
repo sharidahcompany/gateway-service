@@ -11,41 +11,37 @@ class TenantService
     /**
      * Create a new class instance.
      */
-    public function __construct(protected  TenantRepository $tenantRepository)
-    {
-
-    }
+    public function __construct(protected  TenantRepository $tenantRepository) {}
 
     public function create(array $data): Tenant
     {
-            $logo = $data['logo'] ?? null;
+        $logo = $data['logo'] ?? null;
 
-            unset($data['logo']);
+        unset($data['logo']);
 
-            $tenant = $this->tenantRepository->create($data);
+        $tenant = $this->tenantRepository->create($data);
 
-            if ($logo instanceof UploadedFile) {
-                $tenant->addMedia($logo)->toMediaCollection('logo');
-            }
+        if ($logo instanceof UploadedFile) {
+            $tenant->addMedia($logo)->toMediaCollection('logo');
+        }
 
-            return $tenant;
-
+        return $tenant;
     }
 
-    public function update(int $id, array $data): Tenant
+    public function update(string $id, array $data): Tenant
     {
-            $logo = $data['logo'] ?? null;
+        $logo = $data['logo'] ?? null;
 
-            unset($data['logo']);
+        unset($data['logo']);
 
-            $tenant = $this->tenantRepository->update($id, $data);
+        $tenant = $this->tenantRepository->update($id, $data);
 
-            if ($logo instanceof UploadedFile) {
-                $tenant->clearMediaCollection('logo');
-                $tenant->addMedia($logo)->toMediaCollection('logo');
-            }
+        if ($logo instanceof UploadedFile) {
+            $tenant->clearMediaCollection('logo');
+            $tenant->addMedia($logo)->toMediaCollection('logo');
+        }
 
-            return $tenant;
+        return $tenant;
     }
 
     public function delete(array $ids)

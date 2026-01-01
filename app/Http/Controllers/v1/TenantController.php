@@ -55,13 +55,14 @@ class TenantController extends Controller
     public function show(string $id)
     {
         $tenant = Tenant::findOrFail($id);
+        $tenant['logo'] = $tenant->getFirstMediaUrl('logo');
+
         return response()->json([
             'data' => $tenant,
-            'logo' => $tenant->getFirstMediaUrl('logo'),
         ]);
     }
 
-    public function update(UpdateTenantRequest $request, int $id)
+    public function update(UpdateTenantRequest $request, string $id)
     {
         $data = $request->validated();
 

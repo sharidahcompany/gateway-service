@@ -42,9 +42,10 @@ Route::prefix('v1')->middleware([
         Route::get('users/send-confirmation-email', [AuthController::class, 'send_confirmation_email']);
         Route::apiResource('users', UserController::class);
 
-        Route::apiResource('tenants', TenantController::class)->except('index', 'show');
         Route::post('tenants/upload-logo', [TenantController::class, 'upload_logo']);
-        Route::get('tenants/delete-logo', [TenantController::class, 'delete_logo']);
+        Route::post('tenants/delete-logo', [TenantController::class, 'delete_logo']);
+        Route::apiResource('tenants', TenantController::class)->except('index', 'show');
+
 
         Route::delete('tenants', [TenantController::class, 'destroy_bulk']);
 
