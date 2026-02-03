@@ -30,7 +30,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 
 # Copy app code
-COPY . /var/www
+# COPY . /var/www
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www

@@ -8,15 +8,13 @@ use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 
 class AuthController extends Controller
 {
-    public function __construct(protected UserService $user_service)
-    {
-    }
+    public function __construct(protected UserService $user_service) {}
 
     public function register(RegisterRequest $request)
     {
@@ -26,8 +24,9 @@ class AuthController extends Controller
 
         $token = auth('api')->attempt($request->only('email', 'password'));
 
-
         event(new UserCreated($user));
+
+        $cookie = cookie('auth_token', $token, 60 * 24, '/', null, true, true, false, 'Strict');
 
         return (new UserResource($user))
             ->additional([
@@ -35,6 +34,7 @@ class AuthController extends Controller
                 'message' => trans('auth.register.success'),
             ])
             ->response()
+            ->withCookie($cookie)
             ->setStatusCode(201);
     }
 
@@ -47,23 +47,43 @@ class AuthController extends Controller
         }
 
         $user = auth('api')->user();
-
         $tenant = $user->tenants()->first();
 
+        $cookie = cookie(
+            'auth_token',
+            $token,         // JWT value
+            60 * 24,        // minutes = 1 day
+            '/',            // path
+            null,           // domain
+            true,           // secure = HTTPS only
+            true,           // httpOnly = not accessible via JS
+            false,
+            'Strict'        // SameSite policy
+        );
+
         return (new UserResource($user))
-            ->additional(['message' => trans('auth.login.success'), 'token' => $token, 'tenant_id' => $tenant['id']])
+            ->additional([
+                'message' => trans('auth.login.success'),
+                'token' => $token,
+                'tenant_id' => $tenant['id'],
+            ])
             ->response()
+            ->withCookie($cookie)
             ->setStatusCode(200);
     }
+
 
     public function logout()
     {
         auth('api')->logout();
 
+        $cookie = Cookie::forget('auth_token');
+
         return response()->json([
             'message' => trans('auth.logout.success')
-        ], 200);
+        ], 200)->withCookie($cookie);
     }
+
 
     public function confirm_email(Request $request)
     {
