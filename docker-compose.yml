@@ -1,52 +1,65 @@
 services:
-    gateway_service:
+  gateway-service:
+    build:
+      context: /srv/ceo-app/microservices/gateway-service
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    restart: unless-stopped
+    working_dir: /srv/ceo-app/microservices/gateway-service
+    volumes:
+      - /srv/ceo-app/microservices/gateway-service:/srv/ceo-app/microservices/gateway-service
+    networks:
+      - ceo_network
+    depends_on:
+      - gateway_mysql
+
+  gateway_mysql:
+    image: mysql:8.0
+    container_name: gateway_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: gateway-service
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - /srv/ceo-app/infra/mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - ceo_network
+
+  nginx_central:
+    image: nginx:alpine
+    container_name: nginx_central
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /srv/ceo-app/infra/nginx-central/conf.d:/etc/nginx/conf.d
+    networks:
+      - ceo_network
+    depends_on:
+      - gateway-service
+
+    gateway_kafka_consumer:
         build:
             context: .
             dockerfile: Dockerfile
-        container_name: gateway_service
-        restart: unless-stopped
-        working_dir: /var/www
-        volumes:
-            - /home/ahmedismael/projects/ceo/gateway_service:/var/www
-        networks:
-            - ceo_network
-        depends_on:
-            - gateway_mysql
-
-    gateway_web:
-        image: nginx:alpine
-        container_name: gateway_web
-        restart: unless-stopped
-        ports:
-            - "8000:80"
+        container_name: gateway_kafka_consumer
+        working_dir: /srv/ceo-app/microservices/gateway-service
         volumes:
             - ./:/var/www
-            - ./nginx.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - ceo_network
         depends_on:
-            - gateway_service
-        networks:
-            - ceo_network
-
-    gateway_mysql:
-        image: mysql:8.0
-        container_name: gateway_mysql
+            - gateway-service
+        command: php artisan kafka:consume:generic
         restart: unless-stopped
-        environment:
-            MYSQL_ROOT_PASSWORD: admin
-            MYSQL_DATABASE: gateway_service
-            MYSQL_USER: admin
-            MYSQL_PASSWORD: admin
-        volumes:
-            - mysql_data:/var/lib/mysql
-            - ./docker/mysql-init:/docker-entrypoint-initdb.d
-        ports:
-            - "3307:3306"
-        networks:
-            - ceo_network
 
 networks:
-    ceo_network:
-        external: true
+  ceo_network:
+    external: true
 
 volumes:
-    mysql_data:
+  mysql_data:
