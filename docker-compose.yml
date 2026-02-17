@@ -1,21 +1,28 @@
 services:
   gateway-service:
-    build:
-      context: /srv/ceo-app/microservices/gateway-service
-      dockerfile: Dockerfile
+    image: ghcr.io/sharidahcompany/gateway-service:latest
     container_name: gateway-service
     restart: unless-stopped
     working_dir: /srv/ceo-app/microservices/gateway-service
-    volumes:
-      - /srv/ceo-app/microservices/gateway-service:/srv/ceo-app/microservices/gateway-service
     networks:
       - ceo_network
     depends_on:
-      - gateway_mysql
+      - gateway-mysql
 
-  gateway_mysql:
+  gateway-kafka-consumer:
+    image: ghcr.io/sharidahcompany/gateway-service:latest
+    container_name: gateway-kafka-consumer
+    restart: unless-stopped
+    working_dir: /srv/ceo-app/microservices/gateway-service
+    networks:
+      - ceo_network
+    depends_on:
+      - gateway-service
+    command: php artisan kafka:consume:generic
+
+  gateway-mysql:
     image: mysql:8.0
-    container_name: gateway_mysql
+    container_name: gateway-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: admin
@@ -28,9 +35,9 @@ services:
     networks:
       - ceo_network
 
-  nginx_central:
+  nginx-central:
     image: nginx:alpine
-    container_name: nginx_central
+    container_name: nginx-central
     restart: unless-stopped
     ports:
       - "80:80"
@@ -41,21 +48,6 @@ services:
       - ceo_network
     depends_on:
       - gateway-service
-
-    gateway_kafka_consumer:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        container_name: gateway_kafka_consumer
-        working_dir: /srv/ceo-app/microservices/gateway-service
-        volumes:
-            - ./:/var/www
-        networks:
-            - ceo_network
-        depends_on:
-            - gateway-service
-        command: php artisan kafka:consume:generic
-        restart: unless-stopped
 
 networks:
   ceo_network:
