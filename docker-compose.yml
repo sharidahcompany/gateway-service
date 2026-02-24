@@ -48,7 +48,7 @@ services:
         restart: unless-stopped
         environment:
             MYSQL_ROOT_PASSWORD: admin
-            MYSQL_DATABASE: gateway-service
+            MYSQL_DATABASE: gateway_service
             MYSQL_USER: admin
             MYSQL_PASSWORD: admin
         volumes:
