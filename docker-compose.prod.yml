@@ -44,7 +44,7 @@ services:
       - ceo_network
     depends_on:
       - gateway-service
-    command: php artisan kafka:consume:generic
+    command: php artisan kafka:consume
 
   gateway-mysql:
     image: mysql:8.0

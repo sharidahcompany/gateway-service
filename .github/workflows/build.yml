@@ -48,7 +48,7 @@ jobs:
 
             git fetch origin
             git checkout production
-            git pull origin production
+            git reset --hard origin/production
 
             # Update image
             docker pull ghcr.io/sharidahcompany/gateway-service:latest
