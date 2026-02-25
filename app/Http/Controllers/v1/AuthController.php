@@ -22,11 +22,11 @@ class AuthController extends Controller
 
         $user = $this->user_service->create($data);
 
-        $token = auth('api')->attempt($request->only('email', 'password'));
+        $token = auth('api')->login($user);
 
         event(new UserCreated($user));
 
-        $cookie = cookie('auth_token', $token, 60 * 24, '/', null, true, true, false, 'Strict');
+        $cookie = cookie('auth_token', $token, 60 * 24, '/', null, true, true, false, 'Lax');
 
         return (new UserResource($user))
             ->additional([
@@ -48,7 +48,7 @@ class AuthController extends Controller
 
         $user = auth('api')->user();
         $tenant = $user->tenants()->first();
-
+        $tenantId = $tenant?->id;
         $cookie = cookie(
             'auth_token',
             $token,         // JWT value
@@ -58,14 +58,14 @@ class AuthController extends Controller
             true,           // secure = HTTPS only
             true,           // httpOnly = not accessible via JS
             false,
-            'Strict'        // SameSite policy
+            'Lax'        // SameSite policy
         );
 
         return (new UserResource($user))
             ->additional([
                 'message' => trans('auth.login.success'),
                 'token' => $token,
-                'tenant_id' => $tenant['id'],
+                'tenant_id' => $tenantId,
             ])
             ->response()
             ->withCookie($cookie)
