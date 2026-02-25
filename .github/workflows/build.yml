@@ -2,7 +2,7 @@ name: Build & Deploy Gateway
 
 on:
   push:
-    branches: ["main"]
+    branches: ["production"]
 
 permissions:
   contents: read
@@ -45,6 +45,15 @@ jobs:
           script: |
             set -e
             cd /srv/ceo-app/microservices/gateway-service
+
+            git fetch origin
+            git checkout production
+            git pull origin production
+
+            # Update image
             docker pull ghcr.io/sharidahcompany/gateway-service:latest
-            docker compose up -d --no-deps gateway-service
+
+            # Bring up production stack using prod compose file
+            docker compose -f docker-compose.prod.yml up -d --no-deps gateway-service gateway-kafka-consumer
+
             docker image prune -f
