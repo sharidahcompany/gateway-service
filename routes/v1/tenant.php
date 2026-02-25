@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('api/v1')->middleware('api')->middleware(InitializeTenantFromHeader::class)->group(function () {
     $services = [
-        'accounting' => 'http://accounting_web/api/v1',
-        'project-management' => 'http://project_management_web/api/v1',
-        'hr' => 'http://hr_web/api/v1',
+        'accounting' => 'http://accounting-web/api/v1',
+        'project-management' => 'http://pm-web/api/v1',
+        'hr' => 'http://hr-web/api/v1',
+        'buffet' => 'http://buffet-web/api/v1'
     ];
 
     foreach ($services as $prefix => $url) {
