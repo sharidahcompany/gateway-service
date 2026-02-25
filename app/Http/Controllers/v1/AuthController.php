@@ -20,6 +20,8 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
+        $data['password'] = bcrypt($data['password']);
+
         $user = $this->user_service->create($data);
 
         $token = auth('api')->attempt($request->only('email', 'password'));
