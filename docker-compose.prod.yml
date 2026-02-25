@@ -3,60 +3,68 @@ services:
     image: ghcr.io/sharidahcompany/gateway-service:latest
     container_name: gateway-service
     restart: unless-stopped
-    working_dir: /srv/ceo-app/microservices/gateway-service
+    working_dir: /var/www
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes:
+      - gateway_storage:/var/www/storage
+      - gateway_cache:/var/www/bootstrap/cache
     networks:
       - ceo_network
     depends_on:
       - gateway-mysql
 
   gateway-web:
-        image: nginx:alpine
-        container_name: gateway-web
-        restart: unless-stopped
-        ports:
-            - "8001:80"
-        volumes:
-            - /srv/ceo-app/microservices/gateway-service:/var/www
-            - /srv/ceo-app/microservices/gateway-service/nginx.conf:/etc/nginx/conf.d/default.conf
-        depends_on:
-            - gateway-service
-        networks:
-            - ceo_network
+    image: nginx:alpine
+    container_name: gateway-web
+    restart: unless-stopped
+    ports:
+      - "8001:80" 
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - gateway-service
+    networks:
+      - ceo_network
 
   gateway-kafka-consumer:
     image: ghcr.io/sharidahcompany/gateway-service:latest
     container_name: gateway-kafka-consumer
     restart: unless-stopped
     working_dir: /var/www
-    command: php artisan kafka:consume:generic
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes:
+      - gateway_storage:/var/www/storage
+      - gateway_cache:/var/www/bootstrap/cache
     networks:
       - ceo_network
     depends_on:
       - gateway-service
-      - gateway-mysql
+    command: php artisan kafka:consume:generic
 
   gateway-mysql:
-        image: mysql:8.0
-        container_name: gateway-mysql
-        restart: unless-stopped
-        environment:
-            MYSQL_ROOT_PASSWORD: admin
-            MYSQL_DATABASE: gateway_service
-            MYSQL_USER: admin
-            MYSQL_PASSWORD: admin
-        volumes:
-            - mysql_data:/var/lib/mysql
-            - /srv/ceo-app/infra/mysql-init:/docker-entrypoint-initdb.d
-        networks:
-            - ceo_network
+    image: mysql:8.0
+    container_name: gateway-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: gateway_service
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - ceo_network
 
 networks:
-    ceo_network:
-        external: true
+  ceo_network:
+    external: true
 
 volumes:
-    mysql_data:
-
- 
-
- 
+  mysql_data:
+  gateway_storage:
+  gateway_cache:

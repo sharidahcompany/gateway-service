@@ -4,16 +4,18 @@ FROM ghcr.io/sharidahcompany/ceo-app-base:latest
 WORKDIR /var/www
 
 # Copy app code
-COPY . /var/www
+COPY . .
 
 # Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 9000
 
 # Start PHP-FPM
 CMD ["php-fpm"]
                                                          
+
