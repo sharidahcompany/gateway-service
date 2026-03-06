@@ -12,6 +12,7 @@ use App\Http\Services\v1\TenantService;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TenantController extends Controller
 {
@@ -22,7 +23,7 @@ class TenantController extends Controller
 
         $tenant = $this->tenantService->create($data);
 
-        $user = auth()->user();
+        $user = Auth::user();
 
         $tenant->users()->attach($user->id);
 
@@ -40,7 +41,7 @@ class TenantController extends Controller
 
         $kafka_data = [
             'user' => $user->toArray(),
-            'tenant' => $tenant->toArray()
+            'tenant_id' => $tenant?->id,
         ];
 
         $this->kafka->publish('tenant_created', null, $kafka_data);
