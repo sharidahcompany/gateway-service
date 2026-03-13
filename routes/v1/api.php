@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\v1\AuthController;
+use App\Http\Controllers\v1\CountryController;
+use App\Http\Controllers\v1\CurrencyController;
 use App\Http\Controllers\v1\DiscountController;
 use App\Http\Controllers\v1\FeatureController;
 use App\Http\Controllers\v1\PlanController;
@@ -10,7 +12,6 @@ use App\Http\Controllers\v1\ThemeController;
 use App\Http\Controllers\v1\UserController;
 use App\Http\Middleware\InitializeTenantFromHeader;
 use App\Http\Middleware\SetLocaleFromHeader;
-use App\Http\Services\v1\Kafka\KafkaProducerService;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->middleware([
@@ -23,6 +24,9 @@ Route::prefix('v1')->middleware([
     Route::post('login', [AuthController::class, 'login']);
 
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');
+
+    Route::get('countries', [CountryController::class, 'index']);
+    Route::get('currencies', [CurrencyController::class, 'index']);
 
 
     Route::apiResource('plans', PlanController::class)->only('index');
