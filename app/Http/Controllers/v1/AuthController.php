@@ -8,9 +8,11 @@ use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -20,7 +22,7 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        $data['password'] = bcrypt($data['password']);
+        $data['password'] = Hash::make($data['password']);
 
         $user = $this->user_service->create($data);
 
@@ -42,9 +44,9 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $credentials = $request->only('email', 'password');
+        $user = User::where('email', $request->email)->first();
 
-        if (!$token = auth('api')->attempt($credentials)) {
+        if (!$token = auth('api')->login($user)) {
             return response()->json(['message' => trans('auth.failed')], 401);
         }
 
