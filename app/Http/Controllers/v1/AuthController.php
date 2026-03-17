@@ -44,25 +44,29 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $creds = $request->only('email', 'password');
 
-        if (!$token = auth('api')->login($user)) {
-            return response()->json(['message' => trans('auth.failed')], 401);
+        if (!$token = auth('api')->attempt($creds)) {
+            return response()->json([
+                'message' => trans('auth.failed')
+            ], 401);
         }
 
         $user = auth('api')->user();
+
         $tenant = $user->tenants()->first();
         $tenantId = $tenant?->id;
+
         $cookie = cookie(
             'auth_token',
-            $token,         // JWT value
-            60 * 24,        // minutes = 1 day
-            '/',            // path
-            null,           // domain
-            true,           // secure = HTTPS only
-            true,           // httpOnly = not accessible via JS
+            $token,
+            60 * 24,
+            '/',
+            null,
+            true,
+            true,
             false,
-            'Lax'        // SameSite policy
+            'Lax'
         );
 
         return (new UserResource($user))

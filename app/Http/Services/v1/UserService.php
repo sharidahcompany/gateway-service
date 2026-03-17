@@ -11,10 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    public function __construct(protected UserRepository $userRepo)
-    {
-
-    }
+    public function __construct(protected UserRepository $userRepo) {}
 
     public function index()
     {
@@ -28,7 +25,6 @@ class UserService
 
             unset($data['avatar']);
 
-            $data['password'] = Hash::make($data['password']);
 
             $data['status'] = $data['status'] ?? 'active';
 
@@ -90,7 +86,7 @@ class UserService
         }
 
         $user = $this->userRepo->find($data['user_id']);
-        
+
         $user->email_verified_at = now();
         $user->save();
 
