@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->middleware([
     'api',
     SetLocaleFromHeader::class,
-    InitializeTenantFromHeader::class,
+    // InitializeTenantFromHeader::class,
 ])->group(function () {
     // Authentication
     Route::post('register', [AuthController::class, 'register']);
