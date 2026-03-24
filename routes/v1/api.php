@@ -10,14 +10,12 @@ use App\Http\Controllers\v1\PrivilegeController;
 use App\Http\Controllers\v1\TenantController;
 use App\Http\Controllers\v1\ThemeController;
 use App\Http\Controllers\v1\UserController;
-use App\Http\Middleware\InitializeTenantFromHeader;
 use App\Http\Middleware\SetLocaleFromHeader;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->middleware([
     'api',
     SetLocaleFromHeader::class,
-    // InitializeTenantFromHeader::class,
 ])->group(function () {
     // Authentication
     Route::post('register', [AuthController::class, 'register']);
