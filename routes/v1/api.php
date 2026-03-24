@@ -40,11 +40,14 @@ Route::prefix('v1')->middleware([
     Route::apiResource('themes', ThemeController::class)->only('index');
 
     Route::middleware('auth:api')->group(function () {
+        Route::get('me', [AuthController::class, 'me']);
         Route::delete('users', [UserController::class, 'destroy_bulk']);
 
         Route::post('users/email-confirmation', [AuthController::class, 'confirm_email']);
         Route::get('users/send-confirmation-email', [AuthController::class, 'send_confirmation_email']);
+        Route::get('users/tenants', [UserController::class, 'tenants']);
         Route::apiResource('users', UserController::class);
+
 
         Route::post('tenants/upload-logo', [TenantController::class, 'upload_logo']);
         Route::post('tenants/delete-logo', [TenantController::class, 'delete_logo']);

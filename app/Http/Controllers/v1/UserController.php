@@ -15,9 +15,7 @@ use Illuminate\Support\Facades\Event;
 
 class UserController extends Controller
 {
-    public function __construct(protected UserService $user_service)
-    {
-    }
+    public function __construct(protected UserService $user_service) {}
 
     public function index()
     {
@@ -64,5 +62,9 @@ class UserController extends Controller
         return response()->json(['message' => trans('user.delete.success')], 200);
     }
 
-
+    public function tenants()
+    {
+        $tenants = Auth::user()->tenants()->get();
+        return response()->json(['data' => $tenants], 200);
+    }
 }

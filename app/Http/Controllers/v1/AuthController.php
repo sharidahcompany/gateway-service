@@ -30,7 +30,18 @@ class AuthController extends Controller
 
         event(new UserCreated($user));
 
-        $cookie = cookie('auth_token', $token, 60 * 24, '/', null, true, true, false, 'Lax');
+        // $cookie = cookie('auth_token', $token, 60 * 24, '/', null, true, true, false, 'Lax');
+        $cookie = cookie(
+            'auth_token',
+            $token,
+            60 * 24,
+            '/',
+            null,
+            false,
+            true,
+            false,
+            null
+        );
 
         return (new UserResource($user))
             ->additional([
@@ -80,6 +91,12 @@ class AuthController extends Controller
             ->setStatusCode(200);
     }
 
+    public function me()
+    {
+        return (new UserResource(auth('api')->user()))
+            ->response()
+            ->setStatusCode(200);
+    }
 
     public function logout()
     {
