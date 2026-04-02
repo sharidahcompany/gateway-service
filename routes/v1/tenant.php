@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\v1\TenantController;
 use App\Http\Middleware\InitializeTenantFromHeader;
 use App\Http\Middleware\ProxyRequest;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +11,7 @@ Route::prefix('api/v1')->middleware('api')->middleware(InitializeTenantFromHeade
         'accounting' => 'http://accounting-web/api/v1',
         'project-management' => 'http://pm-web/api/v1',
         'hr' => 'http://hr-web/api/v1',
+        'workforce' => 'http://workforce-web/api/v1',
         'buffet' => 'http://buffet-web/api/v1'
     ];
 
