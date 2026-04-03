@@ -27,6 +27,11 @@ class ProxyRequest
         // Add/propagate request id (optional)
         $headers['X-Request-Id'] = $request->header('X-Request-Id', (string) str()->uuid());
 
+        // ---- HEADERS (auth) ----
+        if (!$request->bearerToken() && $request->cookie('auth_token')) {
+            $headers['Authorization'] = 'Bearer ' . $request->cookie('auth_token');
+        }
+
         // ---- BASE OPTIONS ----
         $options = [
             'query'   => $request->query(),
@@ -38,10 +43,8 @@ class ProxyRequest
         // ---- BODY ----
         if ($request->isJson()) {
             $options['json'] = $request->json()->all();
-        }
-        elseif (str_starts_with($contentType, 'multipart/form-data')) {
+        } elseif (str_starts_with($contentType, 'multipart/form-data')) {
 
-            // IMPORTANT: let client build boundary; don't forward original content-type
             unset($options['headers']['content-type'], $options['headers']['Content-Type']);
 
             $options['multipart'] = [];
@@ -66,8 +69,7 @@ class ProxyRequest
                     'contents' => is_bool($value) ? ($value ? '1' : '0') : (string) $value,
                 ];
             }
-        }
-        else {
+        } else {
             // Default: form-url-encoded
             // Laravel HTTP client: use asForm() rather than form_params
             $options['data'] = $request->all();
@@ -75,8 +77,8 @@ class ProxyRequest
 
         // ---- SEND ----
         $http = Http::withOptions([
-                'verify' => true, // keep true; turn off only if you really must
-            ])
+            'verify' => true, // keep true; turn off only if you really must
+        ])
             ->connectTimeout(5)
             ->timeout(30)
             ->retry(1, 200); // 1 retry, 200ms
