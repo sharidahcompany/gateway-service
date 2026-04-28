@@ -28,4 +28,9 @@ return [
     "otp_invalid" => "Invalid OTP",
     "otp_expired" => "OTP expired",
     "otp_not_found" => "OTP not found for this user",
+    "otp_required" => "OTP is required",
+    "otp_digits" => "OTP must be a 6-digit number",
+    "password_required" => "Password is required",
+    "password_confirmed" => "Password confirmation does not match",
+    "password_min" => "Password must be at least 8 characters",
 ];

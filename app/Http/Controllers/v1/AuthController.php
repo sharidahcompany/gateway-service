@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\ForgotPasswordRequest;
 use App\Http\Requests\User\RegisterRequest;
+use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
 use App\Models\User;
@@ -184,43 +185,12 @@ public function forgot_password(ForgotPasswordRequest $request)
 }
 
 
-public function reset_password(Request $request)
+public function reset_password(ResetPasswordRequest $request)
 {
-    $request->validate([
-        'email' => 'required|email|exists:users,email',
-        'otp' => 'required|digits:6',
-        'password' => 'required|confirmed|min:8',
-    ]);
 
     try {
 
         $user = $this->user_service->findByEmail($request->email);
-
-
-        $otpRecord = OTP::where('user_id', $user->id)
-            ->latest()
-            ->first();
-
-        if (!$otpRecord) {
-            return response()->json([
-                'message' => trans('auth.otp_not_found')
-            ], 400);
-        }
-
-
-        if ($otpRecord->otp != $request->otp) {
-            return response()->json([
-                'message' => trans('auth.otp_invalid')
-            ], 400);
-        }
-
-
-        if ($otpRecord->expired_at->lt(now())) {
-            return response()->json([
-                'message' => trans('auth.otp_expired')
-            ], 400);
-        }
-
 
         $user->update([
             'password' => Hash::make($request->password)
