@@ -19,5 +19,11 @@ return [
     'register.success' => 'Account has been created successfully.',
     'login.success' => 'Logged in successfully.',
     'logout.success' => 'Logged out successfully.',
+    'password.current_incorrect' => 'The provided current password is incorrect.',
+    'password.changed_successfully' => 'Password changed successfully.',
+    'current_password_required' => 'The current password is required.',
+    'new_password_required' => 'The new password is required.',
+    'new_password_min' => 'The new password must be at least 8 characters.',
+    'new_password_confirmed' => 'The new password confirmation does not match.',
     'confirm.sent' => 'Confirmation email has been sent, please check your inbox. if you don\'t receive email. Check your spam folder.',
 ];

@@ -20,6 +20,7 @@ Route::prefix('v1')->middleware([
     // Authentication
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
+    Route::post('change-password', [AuthController::class, 'change_password']);
 
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');
 

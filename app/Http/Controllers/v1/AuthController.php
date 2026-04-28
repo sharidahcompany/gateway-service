@@ -6,6 +6,8 @@ use App\Events\UserCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RegisterRequest;
+use App\Http\Requests\User\ChangePasswordRequest;
+
 use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
 use App\Models\User;
@@ -137,4 +139,38 @@ class AuthController extends Controller
 
         return response()->json(['message' => trans('auth.confirm.sent')], 200);
     }
+
+    public function change_password(ChangePasswordRequest $request)
+{
+
+
+    try {
+
+        $user = auth('api')->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'message' => trans('auth.password.current_incorrect')
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+         $user->save();
+
+        return response()->json([
+            'message' =>  trans('auth.password.changed_successfully')
+        ], 200);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'message' => 'Something went wrong'
+        ], 500);
+    }
+}
+
+
 }
