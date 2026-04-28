@@ -11,12 +11,14 @@ use App\Http\Requests\User\RegisterRequest;
 use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
+use App\Mail\ForgotPasswordMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
- use App\Models\OTP;
+use App\Models\OTP;
+use Exception;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -144,70 +146,74 @@ class AuthController extends Controller
     }
 
 
-public function forgot_password(ForgotPasswordRequest $request)
-{
+    public function forgot_password(ForgotPasswordRequest $request)
+    {
 
 
-    try {
+        try {
+            $user = $this->user_service->findByEmail($request->email);
 
-        $user = $this->user_service->findByEmail($request->email);
-        $lastOtp = OTP::where('user_id', $user->id)
-            ->latest()
-            ->first();
+            $this->checkOtp($user->id);
+            $otp = $this->generateOtp($user->id);
+            return $this->sendMail($request->validated('email'),$user, $otp);
 
-        if ($lastOtp && $lastOtp->expired_at->gt(now())) {
-            return response()->json([
-                'message' => trans('auth.otp_already_sent')
-            ], 429);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
+    }
 
+
+
+    public function reset_password(ResetPasswordRequest $request)
+    {
+
+        try {
+
+            $user = $this->user_service->findByEmail($request->email);
+
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+
+            $user->save();
+
+            return response()->json([
+                'message' => trans('auth.password_reset.success')
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+
+
+    private function generateOtp($userID)
+    {
         $otp = rand(100000, 999999);
-
         OTP::create([
-            'user_id' => $user->id,
+            'user_id' => $userID,
             'otp' => $otp,
             'expired_at' => now()->addMinutes(2),
         ]);
+        return $otp;
+    }
 
-        Mail::to($user->email)->send(new \App\Mail\ForgotPasswordMail($user, $otp));
+    private function checkOtp($userID)
+    {
+        $lastOtp = OTP::where('user_id', $userID)
+                ->where('expired_at', '>', now())
+                ->first();
 
-
+        if ($lastOtp) {
+            throw new Exception(trans('auth.otp_already_sent'));
+        }
+    }
+    private function sendMail($email,$user,$otp)
+    {
+        Mail::to($email)->send(new ForgotPasswordMail($user,$otp));
         return response()->json([
             'message' => trans('auth.otp_sent')
         ], 200);
-
-    } catch (\Exception $e) {
-
-        return response()->json([
-            'message' => 'Something went wrong'
-        ], 500);
     }
-}
-
-
-public function reset_password(ResetPasswordRequest $request)
-{
-
-    try {
-
-        $user = $this->user_service->findByEmail($request->email);
-
-        $user->update([
-            'password' => Hash::make($request->password)
-        ]);
-
-        $user->save();
-
-        return response()->json([
-            'message' => trans('auth.password_reset.success')
-        ], 200);
-
-    } catch (\Exception $e) {
-
-        return response()->json([
-            'message' => $e->getMessage()
-        ], 500);
-    }
-}
 
 }
