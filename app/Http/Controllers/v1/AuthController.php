@@ -11,6 +11,7 @@ use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -141,16 +142,13 @@ class AuthController extends Controller
     }
 
     public function change_password(ChangePasswordRequest $request)
-{
-
-
-    try {
+    {
 
         $user = auth('api')->user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json([
-                'message' => trans('auth.password.current_incorrect')
+                return response()->json([
+                'message' =>  trans('auth.password.current_incorrect')
             ], 422);
         }
 
@@ -158,19 +156,9 @@ class AuthController extends Controller
             'password' => Hash::make($request->new_password)
         ]);
 
-         $user->save();
-
         return response()->json([
             'message' =>  trans('auth.password.changed_successfully')
         ], 200);
 
-    } catch (\Exception $e) {
-
-        return response()->json([
-            'message' => 'Something went wrong'
-        ], 500);
     }
-}
-
-
 }

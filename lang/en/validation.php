@@ -235,6 +235,8 @@ return [
         'discount_amount'        => 'Discount Amount',
         'discount_percentage'    => 'Discount Percentage',
         'discount_type'           => 'Discount Type',
+        'current_password'       => 'Current Password',
+        'new_password'           => 'New Password',
     ],
 
 ];
