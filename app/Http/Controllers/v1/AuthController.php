@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\v1;
 
+use Illuminate\Support\Str;
 use App\Events\UserCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LoginRequest;
+use App\Http\Requests\User\ForgotPasswordRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
@@ -13,6 +15,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
+ use App\Models\OTP;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -137,4 +141,103 @@ class AuthController extends Controller
 
         return response()->json(['message' => trans('auth.confirm.sent')], 200);
     }
+
+
+public function forgot_password(ForgotPasswordRequest $request)
+{
+
+
+    try {
+
+        $user = $this->user_service->findByEmail($request->email);
+        $lastOtp = OTP::where('user_id', $user->id)
+            ->latest()
+            ->first();
+
+        if ($lastOtp && $lastOtp->expired_at->gt(now())) {
+            return response()->json([
+                'message' => trans('auth.otp_already_sent')
+            ], 429);
+        }
+
+        $otp = rand(100000, 999999);
+
+        OTP::create([
+            'user_id' => $user->id,
+            'otp' => $otp,
+            'expired_at' => now()->addMinutes(2),
+        ]);
+
+        Mail::to($user->email)->send(new \App\Mail\ForgotPasswordMail($user, $otp));
+
+
+        return response()->json([
+            'message' => trans('auth.otp_sent')
+        ], 200);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'message' => 'Something went wrong'
+        ], 500);
+    }
+}
+
+
+public function reset_password(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email|exists:users,email',
+        'otp' => 'required|digits:6',
+        'password' => 'required|confirmed|min:8',
+    ]);
+
+    try {
+
+        $user = $this->user_service->findByEmail($request->email);
+
+
+        $otpRecord = OTP::where('user_id', $user->id)
+            ->latest()
+            ->first();
+
+        if (!$otpRecord) {
+            return response()->json([
+                'message' => trans('auth.otp_not_found')
+            ], 400);
+        }
+
+
+        if ($otpRecord->otp != $request->otp) {
+            return response()->json([
+                'message' => trans('auth.otp_invalid')
+            ], 400);
+        }
+
+
+        if ($otpRecord->expired_at->lt(now())) {
+            return response()->json([
+                'message' => trans('auth.otp_expired')
+            ], 400);
+        }
+
+
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        $user->save();
+
+        return response()->json([
+            'message' => trans('auth.password_reset.success')
+        ], 200);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }

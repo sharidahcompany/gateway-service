@@ -94,4 +94,10 @@ class UserService
 
         return 'success';
     }
+public function findByEmail(string $email)
+{
+    return $this->userRepo->findByEmail($email);
 }
+
+}
+
