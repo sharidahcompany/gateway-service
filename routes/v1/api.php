@@ -42,6 +42,8 @@ Route::prefix('v1')->middleware([
 
     Route::apiResource('themes', ThemeController::class)->only('index');
 
+
+
     Route::middleware('auth:api')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
         Route::delete('users', [UserController::class, 'destroy_bulk']);
