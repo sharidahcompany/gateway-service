@@ -13,6 +13,7 @@ use App\Http\Controllers\v1\UserController;
 use App\Http\Middleware\SetLocaleFromHeader;
 use Illuminate\Support\Facades\Route;
 
+
 Route::prefix('v1')->middleware([
     'api',
     SetLocaleFromHeader::class,
@@ -20,7 +21,8 @@ Route::prefix('v1')->middleware([
     // Authentication
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('change-password', [AuthController::class, 'change_password']);
+    Route::post('forgot-password', [AuthController::class, 'forgot_password']);
+    Route::post('reset-password', [AuthController::class, 'reset_password']);
 
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');
 
