@@ -201,7 +201,7 @@ class AuthController extends Controller
     } catch (\Exception $e) {
         return response()->json([
             'message' => $e->getMessage()
-        ], 500);
+        ], 422);
     }
 }
 
@@ -241,7 +241,7 @@ public function reset_password(Request $request)
     } catch (\Exception $e) {
         return response()->json([
             'message' => $e->getMessage()
-        ], 500);
+        ], 422);
     }
 }
 
