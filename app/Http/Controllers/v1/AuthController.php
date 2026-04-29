@@ -17,8 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use App\Models\OTP;
-use App\Mail\UserEmailConfirmMail;
-
+use Exception;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -168,10 +167,6 @@ class AuthController extends Controller
 
 
 
-
-
-    public function forgot_password(ForgotPasswordRequest $request)
-    {
         try {
             $user  = User::where('email', $request->validated('email'))->first();
             $this->checkExpiredOtp($user);
@@ -185,6 +180,8 @@ class AuthController extends Controller
 
 
 
+    public function reset_password(ResetPasswordRequest $request)
+    {
 
     public function verify_otp(Request $request)
     {
@@ -280,15 +277,26 @@ class AuthController extends Controller
     }
 
 
-    private function generateOtp($user)
+    private function generateOtp($userID)
     {
         $otp = rand(100000, 999999);
         OTP::create([
-            'user_id' => $user->id,
+            'user_id' => $userID,
             'otp' => $otp,
             'expired_at' => now()->addMinutes(2),
         ]);
         return $otp;
+    }
+
+    private function checkOtp($userID)
+    {
+        $lastOtp = OTP::where('user_id', $userID)
+            ->where('expired_at', '>', now())
+            ->first();
+
+        if ($lastOtp) {
+            throw new Exception(trans('auth.otp_already_sent'));
+        }
     }
     private function sendMail($email, $user, $otp)
     {
