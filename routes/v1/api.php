@@ -24,6 +24,7 @@ Route::prefix('v1')->middleware([
     Route::post('forgot-password', [AuthController::class, 'forgot_password']);
     Route::post('reset-password', [AuthController::class, 'reset_password']);
 
+
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');
 
     Route::get('countries', [CountryController::class, 'index']);
