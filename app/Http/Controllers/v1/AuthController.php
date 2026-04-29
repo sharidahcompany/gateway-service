@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use App\Models\OTP;
-use Exception;
+use App\Mail\UserEmailConfirmMail;
+
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -146,6 +147,29 @@ class AuthController extends Controller
         return response()->json(['message' => trans('auth.confirm.sent')], 200);
     }
 
+
+    public function resend_otp()
+{
+    $user = auth('api')->user();
+
+    try {
+        $mail = new UserEmailConfirmMail($user);
+        $code = $mail->code;
+
+        Mail::to($user->email)->send($mail);
+
+        return response()->json([
+            'message' => trans('auth.otp_sent')
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 429);
+    }
+}
+    public function forgot_password(ForgotPasswordRequest $request)
+    {
 
 
 
