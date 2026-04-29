@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\v1;
 
-use Illuminate\Support\Str;
 use App\Events\UserCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LoginRequest;
@@ -146,12 +145,13 @@ class AuthController extends Controller
     }
 
 
-    public function forgot_password(ForgotPasswordRequest $request)
+    public function resend_otp()
     {
-
+        $user = auth('api')->user();
 
         try {
-            $user = $this->user_service->findByEmail($request->email);
+            $mail = new UserEmailConfirmMail($user);
+            $code = $mail->code;
 
             $this->checkOtp($user->id);
             $otp = $this->generateOtp($user->id);
@@ -166,24 +166,98 @@ class AuthController extends Controller
     public function reset_password(ResetPasswordRequest $request)
     {
 
+    public function verify_otp(Request $request)
+    {
         try {
 
-            $user = $this->user_service->findByEmail($request->email);
-
-            $user->update([
-                'password' => Hash::make($request->password)
+            $request->validate([
+                'email' => 'required|email|exists:users,email',
+                'otp'   => 'required|digits:6',
             ]);
 
-            $user->save();
+            $user = User::where('email', $request->email)->first();
+
+            $otpRecord = OTP::where('user_id', $user->id)
+                ->where('otp', $request->otp)
+                ->where('expired_at', '>', now())
+                ->first();
+
+            if (!$otpRecord) {
+                return response()->json([
+                    'message' => trans('auth.otp_invalid')
+                ], 422);
+            }
+
+            // $otpRecord->delete();
+
+            $token = Str::random(60);
+
+            cache()->put("reset_token_{$user->id}", $token, now()->addMinutes(10));
+
+            return response()->json([
+                'message' => trans('auth.otp_verified'),
+                'reset_token' => $token
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 422);
+        }
+    }
+
+
+
+    public function reset_password(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'email'    => 'required|email|exists:users,email',
+                'token'    => 'required',
+                'password' => 'required|min:8|confirmed',
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            $cachedToken = cache()->get("reset_token_{$user->id}");
+
+            if (!$cachedToken || $cachedToken !== $request->token) {
+                return response()->json([
+                    'message' => trans('auth.reset_token_invalid')
+                ], 422);
+            }
+
+            $user->update([
+                'password' => Hash::make($request->password),
+            ]);
+
+            cache()->forget("reset_token_{$user->id}");
+            OTP::where('user_id', $user->id)->delete();
 
             return response()->json([
                 'message' => trans('auth.password_reset.success')
             ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 422);
         }
     }
 
+
+
+
+    private function checkExpiredOtp($user)
+    {
+        $lastOtp = OTP::where('user_id', $user->id)
+            ->where('expired_at', '>', now())
+            ->first();
+        if ($lastOtp) {
+            throw new Exception(trans('auth.otp_already_sent'));
+        }
+        $otp = $this->generateOtp($user);
+        return $this->sendMail($user->email, $user, $otp);
+    }
 
 
     private function generateOtp($userID)
