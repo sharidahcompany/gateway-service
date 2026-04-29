@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\v1;
 
-use Illuminate\Support\Str;
 use App\Events\UserCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LoginRequest;
@@ -13,7 +12,6 @@ use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
 use App\Mail\ForgotPasswordMail;
 use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -156,8 +154,7 @@ class AuthController extends Controller
 
             $this->checkOtp($user->id);
             $otp = $this->generateOtp($user->id);
-            return $this->sendMail($request->validated('email'),$user, $otp);
-
+            return $this->sendMail($request->validated('email'), $user, $otp);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -202,19 +199,18 @@ class AuthController extends Controller
     private function checkOtp($userID)
     {
         $lastOtp = OTP::where('user_id', $userID)
-                ->where('expired_at', '>', now())
-                ->first();
+            ->where('expired_at', '>', now())
+            ->first();
 
         if ($lastOtp) {
             throw new Exception(trans('auth.otp_already_sent'));
         }
     }
-    private function sendMail($email,$user,$otp)
+    private function sendMail($email, $user, $otp)
     {
-        Mail::to($email)->send(new ForgotPasswordMail($user,$otp));
+        Mail::to($email)->send(new ForgotPasswordMail($user, $otp));
         return response()->json([
             'message' => trans('auth.otp_sent')
         ], 200);
     }
-
 }
