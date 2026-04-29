@@ -34,4 +34,6 @@ return [
     "password_confirmed" => "Password confirmation does not match",
     "password_min" => "Password must be at least 8 characters",
     "otp_wait" => "Please wait 30 seconds before requesting a new OTP",
+    "otp_verified" => "OTP verified successfully",
+    "reset_token_invalid" => "Invalid or expired reset token",
 ];
