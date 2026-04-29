@@ -38,19 +38,28 @@ class UserEmailConfirmMail extends Mailable
     }
 
     public function generate_opt()
-    {
-        $code = random_int(100000, 999999);
+{
+    $lastOtp = OTP::where('user_id', $this->user->id)
+        ->latest()
+        ->first();
 
-        OTP::where('user_id', $this->user['id']);
-
-        OTP::create([
-            'user_id' => $this->user['id'],
-            'otp' => $code,
-            'expired_at' => now()->addMinutes(60),
-        ]);
-
-        return $code;
+    if ($lastOtp && $lastOtp->created_at->diffInSeconds(now()) < 30) {
+        throw new \Exception(__('auth.otp_wait'));
     }
+
+    $code = random_int(100000, 999999);
+
+
+    // OTP::where('user_id', $this->user->id)->delete();
+
+    OTP::create([
+        'user_id' => $this->user->id,
+        'otp' => $code,
+        'expired_at' => now()->addMinutes(60),
+    ]);
+
+    return $code;
+}
 
     /**
      * Get the message content definition.
