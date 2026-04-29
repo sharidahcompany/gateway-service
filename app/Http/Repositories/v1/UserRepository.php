@@ -42,5 +42,10 @@ class UserRepository
             return User::whereIn('id', $ids)->delete() > 0;
         });
     }
+     public function findByEmail(string $email)
+    {
+        return User::where('email', $email)->first();
+    }
 }
+
 
