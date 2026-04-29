@@ -19,6 +19,8 @@ return [
     'register.success' => 'تم إنشاء الحساب بنجاح.',
     'login.success' => 'تم تسجيل الدخول بنجاح.',
     'logout.success' => 'تم تسجيل الخروج بنجاح.',
+    'password.current_incorrect' => 'كلمة المرور الحالية غير صحيحة.',
+    'password.changed_successfully' => 'تم تغيير كلمة المرور بنجاح.',
     'confirm.sent' => 'تم إرسال بريد التأكيد، يرجى التحقق من صندوق الوارد لديك. إذا لم يصلك البريد، تحقق من مجلد الرسائل غير المرغوب فيها (السبام).',
     // 'otp_sent' => 'If your email exists, OTP has been sent',
     "email_not_found" => "البريد الإلكتروني غير موجود في النظام",
