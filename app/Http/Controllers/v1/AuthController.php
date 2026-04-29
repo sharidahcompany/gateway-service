@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\v1;
 
-use Illuminate\Support\Str;
 use App\Events\UserCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LoginRequest;
@@ -13,7 +12,6 @@ use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
 use App\Mail\ForgotPasswordMail;
 use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -296,29 +294,11 @@ public function reset_password(Request $request)
         ]);
         return $otp;
     }
-
-
-    private function sendMail($email,$user,$otp)
+    private function sendMail($email, $user, $otp)
     {
-        Mail::to($email)->send(new ForgotPasswordMail($user,$otp));
+        Mail::to($email)->send(new ForgotPasswordMail($user, $otp));
+        return response()->json([
+            'message' => trans('auth.otp_sent')
+        ], 200);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
