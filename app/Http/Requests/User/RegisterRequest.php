@@ -45,7 +45,7 @@ class RegisterRequest extends FormRequest
                 'phone:AUTO,INTERNATIONAL', // ستعمل الآن لأن الرقم أصبح يبدأ بـ +
                 'unique:users,phone'
             ],
-            'password'   => ['required', 'string', 'confirmed', 'min:8'],
+            'password'   => ['required', 'string', 'confirmed', 'min:8','regex:/^[A-Za-z0-9]+$/'],
             'status'     => ['sometimes', 'in:active,inactive'],
         ];
     }
