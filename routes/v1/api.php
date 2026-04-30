@@ -26,6 +26,7 @@ Route::prefix('v1')->middleware([
     Route::post('verify-otp', [AuthController::class, 'verify_otp']);
     Route::post('reset-password', [AuthController::class, 'reset_password']);
 
+
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');
 
     Route::get('countries', [CountryController::class, 'index']);
@@ -41,6 +42,8 @@ Route::prefix('v1')->middleware([
     Route::apiResource('discounts', DiscountController::class)->only('index');
 
     Route::apiResource('themes', ThemeController::class)->only('index');
+
+
 
     Route::middleware('auth:api')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
