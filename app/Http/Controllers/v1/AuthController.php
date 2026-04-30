@@ -62,43 +62,44 @@ class AuthController extends Controller
             ->setStatusCode(201);
     }
 
-    public function login(LoginRequest $request)
-    {
-        $creds = $request->only('email', 'password');
+ public function login(LoginRequest $request)
+{
+    $creds = $request->only('email', 'password');
 
-        if (!$token = auth('api')->attempt($creds)) {
-            return response()->json([
-                'message' => trans('auth.failed')
-            ], 401);
-        }
-
-        $user = auth('api')->user();
-
-        $tenant = $user->tenants()->first();
-        $tenantId = $tenant?->id;
-
-        $cookie = cookie(
-            'auth_token',
-            $token,
-            60 * 24,
-            '/',
-            null,
-            true,
-            true,
-            false,
-            'Lax'
-        );
-
-        return (new UserResource($user))
-            ->additional([
-                'message' => trans('auth.login.success'),
-                'token' => $token,
-                'tenant_id' => $tenantId,
-            ])
-            ->response()
-            ->withCookie($cookie)
-            ->setStatusCode(200);
+    if (!auth('api')->attempt($creds)) {
+        return response()->json([
+            'message' => trans('auth.failed')
+        ], 401);
     }
+
+    $user = auth('api')->user();
+$token = auth('api')->login($user);
+    if (!$user->email_verified_at) {
+
+        auth('api')->logout();
+
+        return response()->json([
+            'data' => new UserResource($user),
+            'message' => trans('auth.email_not_verified'),
+            'token' => $token,
+
+        ], 200);
+    }
+
+
+
+
+    $tenant = $user->tenants()->first();
+    $tenantId = $tenant?->id;
+
+    return response()->json([
+        'data' => new UserResource($user),
+        'message' => trans('auth.login.success'),
+        'token' => $token,
+        'tenant_id' => $tenantId,
+        'verified' => true,
+    ], 200);
+}
 
     public function me()
     {
