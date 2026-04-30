@@ -171,8 +171,8 @@ class AuthController extends Controller
     public function forgot_password(ForgotPasswordRequest $request)
     {
         try {
-            $user  = User::where('email', $request->validated('email'))->first();
-            $this->checkExpiredOtp($user);
+             $user  = User::where('email', $request->validated('email'))->first();
+             $this->checkExpiredOtp($user);
             return response()->json([
                 'message' => trans('auth.otp_sent')
             ], 200);
