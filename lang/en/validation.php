@@ -164,6 +164,9 @@ return [
     'url' => 'The :attribute field must be a valid URL.',
     'ulid' => 'The :attribute field must be a valid ULID.',
     'uuid' => 'The :attribute field must be a valid UUID.',
+    "uuid4" => 'The :attribute field must be a valid UUID version 4.',
+    'too_many_errors' => 'Some fields contain errors',
+    'password_min'=>'Password must contain at least 8 characters',
 
     /*
     |--------------------------------------------------------------------------
