@@ -42,7 +42,6 @@ class RegisterRequest extends FormRequest
                 'required',
                 'string',
                 'max:20',
-                'phone:AUTO,INTERNATIONAL', // ستعمل الآن لأن الرقم أصبح يبدأ بـ +
                 'unique:users,phone'
             ],
             'password'   => ['required', 'string', 'confirmed', 'min:8'],
