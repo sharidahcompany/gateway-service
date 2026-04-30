@@ -36,4 +36,5 @@ return [
     "otp_verified" => "OTP verified successfully",
     "reset_token_invalid" => "Invalid or expired reset token",
     "otp_wait" => "Please wait 30 seconds before requesting a new OTP",
+        "email_not_verified" => "Your email is not verified, please check your inbox for the verification email or click resend to get a new one",
 ];
