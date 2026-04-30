@@ -151,7 +151,6 @@ class AuthController extends Controller
     public function resend_otp()
 {
     $user = auth('api')->user();
-
     try {
         $mail = new UserEmailConfirmMail($user);
         $code = $mail->code;
