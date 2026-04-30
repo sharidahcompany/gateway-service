@@ -152,8 +152,8 @@ class AuthController extends Controller
     public function forgot_password(ForgotPasswordRequest $request)
     {
         try {
-             $user  = User::where('email', $request->validated('email'))->first();
-             $this->checkExpiredOtp($user);
+            $user  = User::where('email', $request->validated('email'))->first();
+            $this->checkExpiredOtp($user);
             return response()->json([
                 'message' => trans('auth.otp_sent')
             ], 200);
@@ -165,99 +165,97 @@ class AuthController extends Controller
 
 
 
-   public function verify_otp(Request $request)
-{
-    try {
+    public function verify_otp(Request $request)
+    {
+        try {
 
-        $request->validate([
-            'email' => 'required|email|exists:users,email',
-            'otp'   => 'required|digits:6',
-        ]);
+            $request->validate([
+                'email' => 'required|email|exists:users,email',
+                'otp'   => 'required|digits:6',
+            ]);
 
-        $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->first();
 
-        $otpRecord = OTP::where('user_id', $user->id)
-            ->where('otp', $request->otp)
-            ->where('expired_at', '>', now())
-            ->first();
+            $otpRecord = OTP::where('user_id', $user->id)
+                ->where('otp', $request->otp)
+                ->where('expired_at', '>', now())
+                ->first();
 
-        if (!$otpRecord) {
+            if (!$otpRecord) {
+                return response()->json([
+                    'message' => trans('auth.otp_invalid')
+                ], 422);
+            }
+
+            // $otpRecord->delete();
+
+            $token = Str::random(60);
+
+            cache()->put("reset_token_{$user->id}", $token, now()->addMinutes(10));
+
             return response()->json([
-                'message' => trans('auth.otp_invalid')
+                'message' => trans('auth.otp_verified'),
+                'reset_token' => $token
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
             ], 422);
         }
-
-        // $otpRecord->delete();
-
-        $token = Str::random(60);
-
-        cache()->put("reset_token_{$user->id}", $token, now()->addMinutes(10));
-
-        return response()->json([
-            'message' => trans('auth.otp_verified'),
-            'reset_token' => $token
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => $e->getMessage()
-        ], 422);
     }
-}
 
 
 
-public function reset_password(Request $request)
-{
-    try {
+    public function reset_password(Request $request)
+    {
+        try {
 
-        $request->validate([
-            'email'    => 'required|email|exists:users,email',
-            'token'    => 'required',
-            'password' => 'required|min:8|confirmed',
-        ]);
+            $request->validate([
+                'email'    => 'required|email|exists:users,email',
+                'password' => 'required|min:8|confirmed',
+            ]);
 
-        $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->first();
 
-        $cachedToken = cache()->get("reset_token_{$user->id}");
+            $token = $request->bearerToken();
 
-        if (!$cachedToken || $cachedToken !== $request->token) {
+            $cachedToken = cache()->get("reset_token_{$user->id}");
+
+            if (!$cachedToken || $cachedToken !== $token) {
+                return response()->json([
+                    'message' => trans('auth.reset_token_invalid')
+                ], 422);
+            }
+
+            $user->update([
+                'password' => Hash::make($request->password),
+            ]);
+
+            cache()->forget("reset_token_{$user->id}");
+            OTP::where('user_id', $user->id)->delete();
+
             return response()->json([
-                'message' => trans('auth.reset_token_invalid')
+                'message' => trans('auth.password_reset.success')
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
             ], 422);
         }
-
-        $user->update([
-            'password' => Hash::make($request->password),
-        ]);
-
-        cache()->forget("reset_token_{$user->id}");
-        OTP::where('user_id', $user->id)->delete();
-
-        return response()->json([
-            'message' => trans('auth.password_reset.success')
-        ], 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => $e->getMessage()
-        ], 422);
     }
-}
-
 
 
 
     private function checkExpiredOtp($user)
     {
         $lastOtp = OTP::where('user_id', $user->id)
-                ->where('expired_at', '>', now())
-                ->first();
+            ->where('expired_at', '>', now())
+            ->first();
         if ($lastOtp) {
             throw new Exception(trans('auth.otp_already_sent'));
         }
         $otp = $this->generateOtp($user);
-        return $this->sendMail($user->email,$user,$otp);
+        return $this->sendMail($user->email, $user, $otp);
     }
 
 
@@ -273,27 +271,8 @@ public function reset_password(Request $request)
     }
 
 
-    private function sendMail($email,$user,$otp)
+    private function sendMail($email, $user, $otp)
     {
-        Mail::to($email)->send(new ForgotPasswordMail($user,$otp));
+        Mail::to($email)->send(new ForgotPasswordMail($user, $otp));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
