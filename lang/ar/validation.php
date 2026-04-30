@@ -213,6 +213,8 @@ return [
         'discount_amount'       => 'قيمة الخصم',
         'discount_percentage'   => 'نسبة الخصم',
         'discount_type'         => 'نوع الخصم',
+        'current_password'     => 'كلمة المرور الحالية',
+        'new_password'         => 'كلمة المرور الجديدة',
     ],
 
 ];

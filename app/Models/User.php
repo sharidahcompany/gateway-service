@@ -17,7 +17,15 @@ class User extends Authenticatable implements HasMedia, JWTSubject, MustVerifyEm
     use InteractsWithMedia, Notifiable;
 
     protected $fillable = [
-        'first_name', 'last_name', 'username', 'email', 'phone', 'password', 'status', 'email_verified_at',
+        'external_id',
+        'first_name',
+        'last_name',
+        'username',
+        'email',
+        'phone',
+        'password',
+        'status',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -31,7 +39,12 @@ class User extends Authenticatable implements HasMedia, JWTSubject, MustVerifyEm
 
     public function getJWTIdentifier()
     {
-        return $this->getKey();
+        return $this->external_id;
+    }
+
+    public function getAuthIdentifierName()
+    {
+        return 'external_id';
     }
 
     public function getJWTCustomClaims()
@@ -39,13 +52,13 @@ class User extends Authenticatable implements HasMedia, JWTSubject, MustVerifyEm
         return [];
     }
 
-    public function registerMediaCollections(Media $media = null): void {
+    public function registerMediaCollections(Media $media = null): void
+    {
         $this->addMediaCollection('avatar')->singleFile();
     }
 
     public function tenants()
     {
         return $this->belongsToMany(Tenant::class, 'tenant_user', 'user_id', 'tenant_id');
-     }
-
+    }
 }

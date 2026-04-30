@@ -29,6 +29,7 @@ class TenantController extends Controller
 
         $tenant->run(function () use ($user) {
             User::create([
+                'external_id' => $user->external_id,
                 'first_name' => $user->first_name,
                 'last_name'  => $user->last_name,
                 'username'   => $user->username,

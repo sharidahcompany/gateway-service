@@ -13,12 +13,14 @@ use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
 use App\Mail\ForgotPasswordMail;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use App\Models\OTP;
-use Exception;
+use App\Mail\UserEmailConfirmMail;
+
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -146,9 +148,26 @@ class AuthController extends Controller
     }
 
 
+    public function resend_otp()
+{
+    $user = auth('api')->user();
 
+    try {
+        $mail = new UserEmailConfirmMail($user);
+        $code = $mail->code;
 
+        Mail::to($user->email)->send($mail);
 
+        return response()->json([
+            'message' => trans('auth.otp_sent')
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 429);
+    }
+}
     public function forgot_password(ForgotPasswordRequest $request)
     {
         try {

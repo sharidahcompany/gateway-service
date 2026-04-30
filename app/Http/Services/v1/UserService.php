@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserService
 {
@@ -27,6 +28,7 @@ class UserService
 
 
             $data['status'] = $data['status'] ?? 'active';
+            $data['external_id'] = (string) Str::uuid();
 
             $user = $this->userRepo->create($data);
 
