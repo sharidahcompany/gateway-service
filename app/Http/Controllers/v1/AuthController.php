@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use App\Models\OTP;
 use App\Mail\UserEmailConfirmMail;
-
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -100,11 +100,14 @@ class AuthController extends Controller
             ->setStatusCode(200);
     }
 
-    public function me()
+    public function me(Request $request)
     {
-        return (new UserResource(auth('api')->user()))
-            ->response()
-            ->setStatusCode(200);
+        $tenantId = $request->header('X-Tenant');
+        $token =  $request->bearerToken();
+        $response = Http::withToken($token)->withHeaders([
+                'X-Tenant' => $tenantId,
+            ])->get('http://workforce-web/api/v1/me');
+        return  $response->json();
     }
 
     public function logout()
