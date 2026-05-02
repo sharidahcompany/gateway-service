@@ -33,4 +33,10 @@ return [
     "password_required" => "Password is required",
     "password_confirmed" => "Password confirmation does not match",
     "password_min" => "Password must be at least 8 characters",
+    "otp_verified" => "OTP verified successfully",
+    "reset_token_invalid" => "Invalid or expired reset token",
+    "otp_wait" => "Please wait 30 seconds before requesting a new OTP",
+    "otp_verified" => "OTP verified successfully",
+    "reset_token_invalid" => "Invalid or expired reset token",
+        "email_not_verified" => "Your email is not verified, please check your inbox for the verification email or click resend to get a new one",
 ];

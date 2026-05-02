@@ -21,9 +21,12 @@ Route::prefix('v1')->middleware([
     // Authentication
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
+    Route::post('resend-otp', [AuthController::class, 'resend_otp']);
     Route::post('forgot-password', [AuthController::class, 'forgot_password']);
+    Route::post('verify-otp', [AuthController::class, 'verify_otp']);
     Route::post('reset-password', [AuthController::class, 'reset_password']);
     Route::post('change-password', [AuthController::class, 'change_password']);
+
 
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');
 
@@ -40,6 +43,8 @@ Route::prefix('v1')->middleware([
     Route::apiResource('discounts', DiscountController::class)->only('index');
 
     Route::apiResource('themes', ThemeController::class)->only('index');
+
+
 
     Route::middleware('auth:api')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
