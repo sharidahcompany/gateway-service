@@ -23,6 +23,7 @@ Route::prefix('v1')->middleware([
     Route::post('login', [AuthController::class, 'login']);
     Route::post('forgot-password', [AuthController::class, 'forgot_password']);
     Route::post('reset-password', [AuthController::class, 'reset_password']);
+    Route::post('change-password', [AuthController::class, 'change_password']);
 
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');
 

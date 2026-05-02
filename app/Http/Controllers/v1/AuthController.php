@@ -9,6 +9,7 @@ use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\ForgotPasswordRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Requests\User\ResetPasswordRequest;
+use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
 use App\Mail\ForgotPasswordMail;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use App\Models\OTP;
-use Exception;
+
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -156,8 +157,7 @@ class AuthController extends Controller
 
             $this->checkOtp($user->id);
             $otp = $this->generateOtp($user->id);
-            return $this->sendMail($request->validated('email'),$user, $otp);
-
+            return $this->sendMail($request->validated('email'), $user, $otp);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -202,19 +202,51 @@ class AuthController extends Controller
     private function checkOtp($userID)
     {
         $lastOtp = OTP::where('user_id', $userID)
-                ->where('expired_at', '>', now())
-                ->first();
+            ->where('expired_at', '>', now())
+            ->first();
 
         if ($lastOtp) {
             throw new Exception(trans('auth.otp_already_sent'));
         }
     }
-    private function sendMail($email,$user,$otp)
+    private function sendMail($email, $user, $otp)
     {
-        Mail::to($email)->send(new ForgotPasswordMail($user,$otp));
+        Mail::to($email)->send(new ForgotPasswordMail($user, $otp));
         return response()->json([
             'message' => trans('auth.otp_sent')
         ], 200);
     }
 
+
+
+    public function change_password(ChangePasswordRequest $request)
+    {
+
+
+        try {
+
+            $user = auth('api')->user();
+
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'message' => trans('auth.password.current_incorrect')
+                ], 422);
+            }
+
+            $user->update([
+                'password' => Hash::make($request->new_password)
+            ]);
+
+            $user->save();
+
+            return response()->json([
+                'message' =>  trans('auth.password.changed_successfully')
+            ], 200);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
 }
