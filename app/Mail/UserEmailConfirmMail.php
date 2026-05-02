@@ -55,7 +55,7 @@ class UserEmailConfirmMail extends Mailable
     OTP::create([
         'user_id' => $this->user->id,
         'otp' => $code,
-        'expired_at' => now()->addMinutes(60),
+        'expired_at' => now()->addSeconds(60),
     ]);
 
     return $code;
