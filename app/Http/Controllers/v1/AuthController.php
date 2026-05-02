@@ -290,7 +290,7 @@ class AuthController extends Controller
         OTP::create([
             'user_id' => $user->id,
             'otp' => $otp,
-            'expired_at' => now()->addMinutes(2),
+            'expired_at' => now()->addSeconds(60),
         ]);
         return $otp;
     }
