@@ -76,12 +76,7 @@ class AuthController extends Controller
 
         $user = auth('api')->user();
 
-        if(!$user->hasVerifiedEmail()){
-            return response()->json([
-            'message' => trans('auth.email_not_verified'),
-            'verified'=>false
-            ], 401);
-        }  
+        
         $tenant = $user->tenants()->first();
         $tenantId = $tenant?->id;
 
@@ -129,7 +124,6 @@ class AuthController extends Controller
         if ($response->failed()) {
             return response()->json([
                 'message' => 'HR service error',
-                'verified'=>true,
             ], 500);
         }
 
@@ -140,7 +134,7 @@ class AuthController extends Controller
                 'data' => new MeUserResource([
                     'user' => $user,
                     'hr' => $hrData
-                ])
+                ]),
             ]);
     }
 
