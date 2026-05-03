@@ -14,13 +14,12 @@ use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
 use App\Mail\ForgotPasswordMail;
 use App\Models\User;
+use App\Models\OTP;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
-use App\Models\OTP;
-
 use App\Mail\UserEmailConfirmMail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -76,6 +75,12 @@ class AuthController extends Controller
 
         $user = auth('api')->user();
 
+        if(!$user->hasVerifiedEmail()){
+            return response()->json([
+            'message' => trans('auth.email_not_verified'),
+            'verified'=>false
+            ], 401);
+        }  
         $tenant = $user->tenants()->first();
         $tenantId = $tenant?->id;
 
@@ -96,6 +101,7 @@ class AuthController extends Controller
                 'message' => trans('auth.login.success'),
                 'token' => $token,
                 'tenant_id' => $tenantId,
+                'verified'=>true
             ])
             ->response()
             ->withCookie($cookie)
@@ -105,11 +111,36 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $tenantId = $request->header('X-Tenant');
-        $token =  $request->bearerToken();
+        $token = $request->bearerToken();
+        $user = Auth::user();
+
+        if(!$user->hasVerifiedEmail()){
+            return response()->json([
+            'message' => trans('auth.email_not_verified'),
+            'verified'=>false
+            ], 401);
+        }    
+
         $response = Http::withToken($token)->withHeaders([
-                'X-Tenant' => $tenantId,
-            ])->get('http://workforce-web/api/v1/me');
-        return  $response->json();
+            'X-Tenant' => $tenantId,
+        ])->get('http://workforce-web/api/v1/me');
+
+        if ($response->failed()) {
+            return response()->json([
+                'message' => 'HR service error',
+                'verified'=>true,
+            ], 500);
+        }
+
+       
+        $hrData = $response->json();             
+
+        return response()->json([
+                'data' => new UserResource([
+                    'user' => $user,
+                    'hr' => $hrData
+                ])
+            ]);
     }
 
     public function logout()
@@ -149,7 +180,10 @@ class AuthController extends Controller
 
         event(new UserCreated($user));
 
-        return response()->json(['message' => trans('auth.confirm.sent')], 200);
+        return response()->json([
+            'message' => trans('auth.confirm.sent'),
+            'verified'=>true,
+        ]);
     }
 
 
