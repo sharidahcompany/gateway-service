@@ -26,6 +26,7 @@ class MeUserResource extends JsonResource
             'last_name' => $user->last_name,
             'full_name' => $user->full_name,
             'email_verified_at'=>$user->email_verified_at,
+            'verified'=>$user->email_verified_at ? true : false,
             'address' => $user->address,
             'nationality' => $user->nationality,
             'date_of_birth' => $user->date_of_birth,
@@ -47,10 +48,9 @@ class MeUserResource extends JsonResource
             ? ExperienceResource::collection(collect($hr['experiences']))
             : [],
 
-            // 'avatar' => $this->getFirstMediaUrl('avatar'),
+            'avatar' => $hr['media'][0]['original_url'],
             'created_at' => $user->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $user->updated_at->format('Y-m-d H:i:s'),
-
         ];
     }
 }
