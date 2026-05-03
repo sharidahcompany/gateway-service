@@ -10,6 +10,7 @@ use App\Http\Requests\User\ForgotPasswordRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
+use App\Http\Resources\MeUserResource;
 use App\Http\Resources\UserResource;
 use App\Http\Services\v1\UserService;
 use App\Mail\ForgotPasswordMail;
@@ -136,7 +137,7 @@ class AuthController extends Controller
         $hrData = $response->json();             
 
         return response()->json([
-                'data' => new UserResource([
+                'data' => new MeUserResource([
                     'user' => $user,
                     'hr' => $hrData
                 ])
