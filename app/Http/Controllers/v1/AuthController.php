@@ -171,7 +171,7 @@ class AuthController extends Controller
 
     public function send_confirmation_email()
     {
-        $user = $this->user_service->find(auth('api')->id());
+        $user = $this->user_service->find(auth('api')->user()->id);
 
         event(new UserCreated($user));
 
