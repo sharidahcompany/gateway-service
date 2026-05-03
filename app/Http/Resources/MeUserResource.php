@@ -48,7 +48,7 @@ class MeUserResource extends JsonResource
             ? ExperienceResource::collection(collect($hr['experiences']))
             : [],
 
-            'avatar' => $hr['media'][0]['original_url'],
+            'avatar' => $hr['media'] ? $hr['media'][0]['original_url'] : null,
             'created_at' => $user->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $user->updated_at->format('Y-m-d H:i:s'),
         ];
