@@ -1,7 +1,7 @@
 @php
-    $rtlLocales = ['ar', 'fa', 'he'];
-    $locale = app()->getLocale();
-    $dir = in_array($locale, $rtlLocales) ? 'rtl' : 'ltr';
+$rtlLocales = ['ar', 'fa', 'he'];
+$locale = app()->getLocale();
+$dir = in_array($locale, $rtlLocales) ? 'rtl' : 'ltr';
 @endphp
 
 <!DOCTYPE html>
@@ -24,9 +24,9 @@
     {{-- Logo --}}
     <div style="margin-bottom: 20px; text-align: center;">
         <img src="https://www2.0zz0.com/2025/08/28/13/180370951.png"
-             alt="logo"
-             width="80"
-             height="80">
+            alt="logo"
+            width="80"
+            height="80">
     </div>
 
     {{-- Greeting --}}
@@ -59,7 +59,7 @@
 
     {{-- Expiry --}}
     <p style="margin-bottom: 10px;">
-        This code will expire in 2 minutes.
+        This code will expire in 60 seconds.
     </p>
 
     {{-- Ignore --}}
@@ -74,4 +74,5 @@
     </p>
 
 </body>
+
 </html>

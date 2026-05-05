@@ -76,7 +76,7 @@ class AuthController extends Controller
 
         $user = auth('api')->user();
 
-        
+
         $tenant = $user->tenants()->first();
         $tenantId = $tenant?->id;
 
@@ -97,7 +97,6 @@ class AuthController extends Controller
                 'message' => trans('auth.login.success'),
                 'token' => $token,
                 'tenant_id' => $tenantId,
-                'verified'=>true
             ])
             ->response()
             ->withCookie($cookie)
@@ -110,12 +109,12 @@ class AuthController extends Controller
         $token = $request->bearerToken();
         $user = Auth::user();
 
-        if(!$user->hasVerifiedEmail()){
+        if (!$user->hasVerifiedEmail()) {
             return response()->json([
-            'message' => trans('auth.email_not_verified'),
-            'verified'=>false
+                'message' => trans('auth.email_not_verified'),
+                'verified' => false
             ], 401);
-        }    
+        }
 
         $response = Http::withToken($token)->withHeaders([
             'X-Tenant' => $tenantId,
@@ -127,15 +126,15 @@ class AuthController extends Controller
             ], 500);
         }
 
-       
-        $hrData = $response->json();             
+
+        $hrData = $response->json();
 
         return response()->json([
-                'data' => new MeUserResource([
-                    'user' => $user,
-                    'hr' => $hrData
-                ]),
-            ]);
+            'data' => new MeUserResource([
+                'user' => $user,
+                'hr' => $hrData
+            ]),
+        ]);
     }
 
     public function logout()
@@ -177,7 +176,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => trans('auth.confirm.sent'),
-            'verified'=>true,
+            'verified' => true,
         ]);
     }
 
@@ -195,7 +194,6 @@ class AuthController extends Controller
             return response()->json([
                 'message' => trans('auth.otp_sent')
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
@@ -206,8 +204,8 @@ class AuthController extends Controller
     public function forgot_password(ForgotPasswordRequest $request)
     {
         try {
-             $user  = User::where('email', $request->validated('email'))->first();
-             $this->checkExpiredOtp($user);
+            $user  = User::where('email', $request->validated('email'))->first();
+            $this->checkExpiredOtp($user);
             return response()->json([
                 'message' => trans('auth.otp_sent')
             ], 200);
