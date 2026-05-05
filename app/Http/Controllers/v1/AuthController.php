@@ -97,7 +97,6 @@ class AuthController extends Controller
                 'message' => trans('auth.login.success'),
                 'token' => $token,
                 'tenant_id' => $tenantId,
-                'verified'=>true
             ])
             ->response()
             ->withCookie($cookie)
