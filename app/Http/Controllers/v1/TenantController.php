@@ -17,8 +17,16 @@ use Illuminate\Support\Facades\Auth;
 class TenantController extends Controller
 {
     public function __construct(protected TenantService $tenantService, protected KafkaProducerService $kafka) {}
-    public function store(CreateTenantRequest $request)
+    public function index(Request $request)
     {
+        $limit = $request->get('limit', 10);
+
+        return Tenant::select('id')
+            ->paginate($limit);
+    }
+
+    public function store(CreateTenantRequest $request)
+    {   
         $data = $request->validated();
 
         $tenant = $this->tenantService->create($data);

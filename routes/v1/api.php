@@ -18,6 +18,12 @@ Route::prefix('v1')->middleware([
     'api',
     SetLocaleFromHeader::class,
 ])->group(function () {
+ 
+//**********************************************************************************************/
+    //get tenants for HR service becuse employees attendace
+    Route::get('tenants',[TenantController::class,'index']);
+//**********************************************************************************************/
+
     // Authentication
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
@@ -44,8 +50,7 @@ Route::prefix('v1')->middleware([
 
     Route::apiResource('themes', ThemeController::class)->only('index');
 
-
-
+    
     Route::middleware('auth:api')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
         Route::delete('users', [UserController::class, 'destroy_bulk']);
