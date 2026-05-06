@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\v1\AuthController;
 use App\Http\Controllers\v1\CountryController;
 use App\Http\Controllers\v1\CurrencyController;
@@ -52,6 +53,7 @@ Route::prefix('v1')->middleware([
 
     
     Route::middleware('auth:api')->group(function () {
+        Route::get('home',[HomeController::class,'index']);
         Route::get('me', [AuthController::class, 'me']);
         Route::delete('users', [UserController::class, 'destroy_bulk']);
 
