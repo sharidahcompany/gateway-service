@@ -181,9 +181,9 @@ class AuthController extends Controller
     }
 
 
-    public function resend_otp()
+    public function resend_otp(ForgotPasswordRequest $request)
     {
-        $user = auth('api')->user();
+        $user = User::where('email', $request->validated('email'))->first();
 
         try {
             $mail = new UserEmailConfirmMail($user);
@@ -205,10 +205,10 @@ class AuthController extends Controller
     public function forgot_password(ForgotPasswordRequest $request)
     {
         try {
-             $user  = User::where('email', $request->validated('email'))->first();
-             $this->checkExpiredOtp($user);
+            $user  = User::where('email', $request->validated('email'))->first();
+            $this->checkExpiredOtp($user);
             return response()->json([
-                'message' => trans('auth.otp_sent')
+                'message' => trans('auth.otp_sent'),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
