@@ -44,6 +44,25 @@ class HomeController extends Controller
                     "is_icon_colored" => false,
                     "route_name" => "hr",
                 ],
+                [
+                    "id" => "3",
+                    "title" => "الهيكل التنظيمي",
+                    "subtitle" => "الهيكل التنظيمي",
+                    "icon_url" => "https://api.sharidah.com/icons/project.png",
+                    "hex_color" => "#FFCC00",
+                    "is_icon_colored" => false,
+                    "route_name" => "/dashboard/organizational-structure",
+                ],
+                [
+                    "id" => "4",
+                    "title" => "البوفية",
+                    "subtitle" => "البوفية",
+                    "icon_url" => "https://api.sharidah.com/icons/project.png",
+                    "hex_color" => "#FFCC00",
+                    "is_icon_colored" => false,
+                    "route_name" => "/dashboard/buffet",
+                ],
+                
             ],
 
             "project_overview" => [
