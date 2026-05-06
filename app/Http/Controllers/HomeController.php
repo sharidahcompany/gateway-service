@@ -33,7 +33,7 @@ class HomeController extends Controller
                     "icon_url" => "https://api.sharidah.com/icons/project.png",
                     "hex_color" => "#FFCC00",
                     "is_icon_colored" => false,
-                    "route_name" => "projectManagement",
+                    "route_name" => "/dashboard/pm",
                 ],
                 [
                     "id" => "2",
@@ -42,7 +42,7 @@ class HomeController extends Controller
                     "icon_url" => "https://api.sharidah.com/icons/hr.png",
                     "hex_color" => "#10B981",
                     "is_icon_colored" => false,
-                    "route_name" => "hr",
+                    "route_name" => "/dashboard/hr",
                 ],
                 [
                     "id" => "3",
