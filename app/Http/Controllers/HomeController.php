@@ -47,7 +47,7 @@ class HomeController extends Controller
                 [
                     "id" => "3",
                     "title" => "الهيكل التنظيمي",
-                    "subtitle" => "الهيكل التنظيمي",
+                    "subtitle" => "إدارة الأقسام والمسميات الوظيفية",
                     "icon_url" => "https://api.sharidah.com/icons/project.png",
                     "hex_color" => "#FFCC00",
                     "is_icon_colored" => false,
@@ -56,7 +56,7 @@ class HomeController extends Controller
                 [
                     "id" => "4",
                     "title" => "البوفية",
-                    "subtitle" => "البوفية",
+                    "subtitle" => "متابعة الطلبات والمشروبات اليومية",
                     "icon_url" => "https://api.sharidah.com/icons/project.png",
                     "hex_color" => "#FFCC00",
                     "is_icon_colored" => false,
