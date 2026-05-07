@@ -18,7 +18,7 @@ class MeUserResource extends JsonResource
         $hr = $this['hr'];
 
         return [
-            'id' => $user->id,
+            'id' => $hr['id'],
             'email' => $user->email,
             'phone' => $user->phone,
             'id_number' => $user->id_number,
