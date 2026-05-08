@@ -38,6 +38,8 @@ class UserService
             $data['status'] = $data['status'] ?? 'active';
             $data['external_id'] = (string) Str::uuid();
 
+            $data['password'] = Hash::make($data['password']);
+
             $user = $this->userRepo->create($data);
 
 
