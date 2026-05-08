@@ -19,7 +19,7 @@ Route::prefix('v1')->middleware([
     'api',
     SetLocaleFromHeader::class,
 ])->group(function () {
- 
+
 //**********************************************************************************************/
     //get tenants for HR service becuse employees attendace
     Route::get('tenants',[TenantController::class,'index']);
@@ -51,7 +51,7 @@ Route::prefix('v1')->middleware([
 
     Route::apiResource('themes', ThemeController::class)->only('index');
 
-    
+
     Route::middleware('auth:api')->group(function () {
         Route::get('home',[HomeController::class,'index']);
         Route::get('me', [AuthController::class, 'me']);
@@ -60,7 +60,6 @@ Route::prefix('v1')->middleware([
         Route::post('users/email-confirmation', [AuthController::class, 'confirm_email']);
         Route::get('users/send-confirmation-email', [AuthController::class, 'send_confirmation_email']);
         Route::get('users/tenants', [UserController::class, 'tenants']);
-        Route::apiResource('users', UserController::class);
 
 
         Route::post('tenants/upload-logo', [TenantController::class, 'upload_logo']);

@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\v1\UserController;
 use App\Http\Middleware\InitializeTenantFromHeader;
 use App\Http\Middleware\ProxyRequest;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api/v1')->middleware('api')->middleware(InitializeTenantFromHeader::class)->group(function () {
+    Route::apiResource('users', UserController::class);
+
     $services = [
         'accounting' => 'http://accounting-web/api/v1',
         'project-management' => 'http://pm-web/api/v1',

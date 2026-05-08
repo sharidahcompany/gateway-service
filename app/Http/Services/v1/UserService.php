@@ -3,6 +3,7 @@
 namespace App\Http\Services\v1;
 
 use App\Http\Repositories\v1\UserRepository;
+use App\Http\Services\v1\Kafka\KafkaProducerService;
 use App\Models\OTP;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -12,16 +13,23 @@ use Illuminate\Support\Str;
 
 class UserService
 {
-    public function __construct(protected UserRepository $userRepo) {}
+    public function __construct(protected UserRepository $userRepo, protected KafkaProducerService $kafka) {}
 
     public function index()
     {
         return $this->userRepo->index();
     }
 
-    public function create(array $data): User
+    public function create(array $data)
     {
-        return DB::transaction(function () use ($data) {
+        $tenantId = tenant('id');
+
+        if (!$tenantId) {
+            return response()->json([
+                'message' => 'Tenant not found'
+            ]);
+        };
+        return DB::transaction(function () use ($data, $tenantId) {
             $avatar = $data['avatar'] ?? null;
 
             unset($data['avatar']);
@@ -31,6 +39,15 @@ class UserService
             $data['external_id'] = (string) Str::uuid();
 
             $user = $this->userRepo->create($data);
+
+
+
+            $kafka_data = [
+                'user' =>   $user,
+                'tenant_id' =>      $tenantId
+            ];
+
+            $this->kafka->publish('user_created', $tenantId, $user->toArray());
 
             if ($avatar instanceof UploadedFile) {
                 $user->addMedia($avatar)->toMediaCollection('avatar');
@@ -96,10 +113,8 @@ class UserService
 
         return 'success';
     }
-public function findByEmail(string $email)
-{
-    return $this->userRepo->findByEmail($email);
+    public function findByEmail(string $email)
+    {
+        return $this->userRepo->findByEmail($email);
+    }
 }
-
-}
-
