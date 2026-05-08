@@ -34,7 +34,8 @@ class User extends Authenticatable implements HasMedia, JWTSubject, MustVerifyEm
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime'
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     public function getJWTIdentifier()

@@ -33,7 +33,6 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        $data['password'] = Hash::make($data['password']);
 
         $user = $this->user_service->create($data);
 
