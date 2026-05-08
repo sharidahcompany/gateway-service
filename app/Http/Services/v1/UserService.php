@@ -5,6 +5,7 @@ namespace App\Http\Services\v1;
 use App\Http\Repositories\v1\UserRepository;
 use App\Http\Services\v1\Kafka\KafkaProducerService;
 use App\Models\OTP;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -22,37 +23,41 @@ class UserService
 
     public function create(array $data)
     {
+
+
+        $avatar = $data['avatar'] ?? null;
+
+        unset($data['avatar']);
+
+
+        $data['status'] = $data['status'] ?? 'active';
+        $data['external_id'] = (string) Str::uuid();
+
+
+        $user = $this->userRepo->create($data);
+
         $tenantId = tenant('id');
 
 
-        return DB::transaction(function () use ($data, $tenantId) {
-            $avatar = $data['avatar'] ?? null;
 
-            unset($data['avatar']);
+        $this->kafka->publish('user_created', $tenantId, $user->toArray());
 
+        if ($avatar instanceof UploadedFile) {
+            $user->addMedia($avatar)->toMediaCollection('avatar');
+        }
 
-            $data['status'] = $data['status'] ?? 'active';
-            $data['external_id'] = (string) Str::uuid();
+        tenancy()->end();
 
-            $data['password'] = Hash::make($data['password']);
-
-            $user = $this->userRepo->create($data);
+        $user = $this->userRepo->create($data);
 
 
+        $tenant = Tenant::find($tenantId);
 
-            $kafka_data = [
-                'user' =>   $user,
-                'tenant_id' =>      $tenantId
-            ];
+        if ($tenant) {
+            $tenant->users()->attach($user->id);
+        }
 
-            $this->kafka->publish('user_created', $tenantId, $user->toArray());
-
-            if ($avatar instanceof UploadedFile) {
-                $user->addMedia($avatar)->toMediaCollection('avatar');
-            }
-
-            return $user;
-        });
+        return $user;
     }
 
     public function find(int $id): ?User
