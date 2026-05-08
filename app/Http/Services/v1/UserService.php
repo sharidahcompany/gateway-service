@@ -24,11 +24,7 @@ class UserService
     {
         $tenantId = tenant('id');
 
-        if (!$tenantId) {
-            return response()->json([
-                'message' => 'Tenant not found'
-            ]);
-        };
+
         return DB::transaction(function () use ($data, $tenantId) {
             $avatar = $data['avatar'] ?? null;
 
