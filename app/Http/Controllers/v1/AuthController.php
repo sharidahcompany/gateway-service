@@ -238,6 +238,9 @@ class AuthController extends Controller
                 ], 422);
             }
 
+            $user->email_verified_at = now();
+            $user->save();
+
             // $otpRecord->delete();
 
             $token = Str::random(60);
