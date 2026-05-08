@@ -48,12 +48,15 @@ class UserService
 
         tenancy()->end();
 
-        $user = $this->userRepo->create($data);
 
 
         $tenant = Tenant::find($tenantId);
 
+
+
         if ($tenant) {
+            $user = $this->userRepo->create($data);
+
             $tenant->users()->attach($user->id);
         }
 
