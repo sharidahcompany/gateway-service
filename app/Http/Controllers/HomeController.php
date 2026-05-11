@@ -60,7 +60,7 @@ class HomeController extends Controller
                     "icon_url" => "https://api.sharidah.com/icons/project.png",
                     "hex_color" => "#FFCC00",
                     "is_icon_colored" => false,
-                    "route_name" => "/dashboard/buffet",
+                    "route_name" => "/dashboard/settings/branch-buffets",
                 ],
                 
             ],
