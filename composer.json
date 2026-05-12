@@ -16,7 +16,7 @@
         "laravel/tinker": "^2.10.1",
         "mateusjunges/laravel-kafka": "^2.9",
         "spatie/laravel-medialibrary": "^11.13",
-        "spatie/laravel-permission": "^6.20",
+        "spatie/laravel-permission": "^7.4",
         "stancl/tenancy": "^3.9",
         "tymon/jwt-auth": "^2.2"
     },

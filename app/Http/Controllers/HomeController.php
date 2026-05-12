@@ -45,6 +45,15 @@ class HomeController extends Controller
                     "route_name" => "/dashboard/hr",
                 ],
                 [
+                    "id" => "2",
+                    "title" => "الموارد البشرية",
+                    "subtitle" => "إدارة الموظفين والطلبات",
+                    "icon_url" => "https://api.sharidah.com/icons/hr.png",
+                    "hex_color" => "#10B981",
+                    "is_icon_colored" => false,
+                    "route_name" => "/dashboard/hr",
+                ],
+                [
                     "id" => "3",
                     "title" => "الهيكل التنظيمي",
                     "subtitle" => "إدارة الأقسام والمسميات الوظيفية",
