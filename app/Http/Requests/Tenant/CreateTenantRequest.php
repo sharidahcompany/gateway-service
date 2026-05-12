@@ -24,8 +24,8 @@ class CreateTenantRequest extends FormRequest
         return [
             'name' => ['required', 'array'],
             'name.*' => ['required', 'string', 'max:255'],
-            'commercial_number' => ['required', 'string', 'max:255'],
-            'tax_number' => ['required', 'string', 'max:255'],
+            'commercial_number' => ['required', 'string', 'max:255', 'regex:/^[0-9]+$/'],
+            'tax_number' => ['required', 'string', 'max:255', 'regex:/^[0-9]+$/'],
             'currency' => ['nullable', 'string', 'max:10'],
             'country' => ['nullable', 'string', 'max:100'],
             'is_vat_registered' => ['boolean'],
