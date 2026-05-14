@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\UserEmailConfirmMail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
@@ -31,36 +32,39 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request)
     {
-        $data = $request->validated();
 
+           $data = $request->validated();
+           return DB::transaction(function () use ($data) {
 
-        $user = $this->user_service->create($data);
+                $user = $this->user_service->create($data);
 
-        $token = auth('api')->login($user);
+                $token = auth('api')->login($user);
 
-        event(new UserCreated($user));
+                event(new UserCreated($user));
 
-        // $cookie = cookie('auth_token', $token, 60 * 24, '/', null, true, true, false, 'Lax');
-        $cookie = cookie(
-            'auth_token',
-            $token,
-            60 * 24,
-            '/',
-            null,
-            false,
-            true,
-            false,
-            null
-        );
+                $cookie = cookie(
+                    'auth_token',
+                    $token,
+                    60 * 24,
+                    '/',
+                    null,
+                    false,
+                    true,
+                    false,
+                    null
+                );
 
-        return (new UserResource($user))
-            ->additional([
-                'token' => $token,
-                'message' => trans('auth.register.success'),
-            ])
-            ->response()
-            ->withCookie($cookie)
-            ->setStatusCode(201);
+                return (new UserResource($user))
+                    ->additional([
+                        'token' => $token,
+                        'message' => trans('auth.register.success'),
+                    ])
+                    ->response()
+                    ->withCookie($cookie)
+                    ->setStatusCode(201);
+
+            });
+        
     }
 
     public function login(LoginRequest $request)
