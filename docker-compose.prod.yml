@@ -61,6 +61,24 @@ services:
     networks:
       - ceo_network
 
+  gateway-queue-worker:
+    image: ghcr.io/sharidahcompany/gateway-service:latest
+    container_name: gateway-queue-worker
+    restart: unless-stopped
+    working_dir: /var/www
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes:
+      - gateway_storage:/var/www/storage
+      - gateway_cache:/var/www/bootstrap/cache
+    networks:
+      - ceo_network
+    depends_on:
+      - gateway-service
+      - gateway-mysql
+    command: php artisan queue:work --verbose --tries=3
+
 networks:
   ceo_network:
     external: true
