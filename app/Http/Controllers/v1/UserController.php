@@ -12,6 +12,7 @@ use App\Http\Services\v1\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -66,5 +67,31 @@ class UserController extends Controller
     {
         $tenants = Auth::user()->tenants()->get();
         return response()->json(['data' => $tenants], 200);
+    }
+
+    public function createEmployee(RegisterRequest $request)
+    {
+        $tenantId = $request->header('X-Tenant');
+        $token = $request->bearerToken();
+        $data = $request->validated();
+
+        $user = $this->user_service->create($data['user']);
+
+        $user->syncPermissions($data['permissions']);
+
+        Http::withToken($token)->withHeaders([
+            'X-Tenant' => $tenantId,
+        ])->post('http://workforce-web/api/v1/users', $data['user'])->then(function () use ($data, $token, $tenantId) {
+            Http::withToken($token)->withHeaders([
+                'X-Tenant' => $tenantId,
+            ])->post('http://accounting-web/api/v1/users', $data['user']);
+        });
+
+        return (new UserResource($user))
+            ->additional([
+                'message' => trans('auth.register.success'),
+            ])
+            ->response()
+            ->setStatusCode(201);
     }
 }

@@ -25,6 +25,7 @@ use App\Mail\UserEmailConfirmMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\Models\Permission;
 
 class AuthController extends Controller
 {
@@ -350,9 +351,6 @@ class AuthController extends Controller
 
     public function change_password(ChangePasswordRequest $request)
     {
-
-
-
         try {
 
             $user = auth('api')->user();
@@ -378,5 +376,16 @@ class AuthController extends Controller
                 'message' => 'Something went wrong'
             ], 500);
         }
+    }
+
+    public function permissions()
+    {
+        $permissions = Permission::all()->map(function ($permission) {
+            return [
+                'permission' => $permission->name,
+                'name' => trans('permission.' . $permission->name)
+            ];
+        });
+        return response()->json(['data' => $permissions], 200);
     }
 }

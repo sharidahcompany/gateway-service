@@ -10,11 +10,12 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-
+use Spatie\Permission\Traits\HasPermissions;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasMedia, JWTSubject, MustVerifyEmail
 {
-    use InteractsWithMedia, Notifiable;
+    use InteractsWithMedia, Notifiable, HasRoles, HasPermissions;
 
     protected $fillable = [
         'external_id',
