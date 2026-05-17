@@ -20,10 +20,10 @@ Route::prefix('v1')->middleware([
     SetLocaleFromHeader::class,
 ])->group(function () {
 
-//**********************************************************************************************/
+    //**********************************************************************************************/
     //get tenants for HR service becuse employees attendace
-    Route::get('tenants',[TenantController::class,'index']);
-//**********************************************************************************************/
+    Route::get('tenants', [TenantController::class, 'index']);
+    //**********************************************************************************************/
 
     // Authentication
     Route::post('register', [AuthController::class, 'register']);
@@ -33,6 +33,7 @@ Route::prefix('v1')->middleware([
     Route::post('verify-otp', [AuthController::class, 'verify_otp']);
     Route::post('reset-password', [AuthController::class, 'reset_password']);
     Route::post('change-password', [AuthController::class, 'change_password']);
+    Route::get('permissions', [AuthController::class, 'permissions']);
 
 
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');
@@ -53,7 +54,7 @@ Route::prefix('v1')->middleware([
 
 
     Route::middleware('auth:api')->group(function () {
-        Route::get('home',[HomeController::class,'index']);
+        Route::get('home', [HomeController::class, 'index']);
         Route::get('me', [AuthController::class, 'me']);
         Route::delete('users', [UserController::class, 'destroy_bulk']);
 
