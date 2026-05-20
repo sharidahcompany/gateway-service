@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\v1\HomeController;
 use App\Http\Controllers\v1\AuthController;
 use App\Http\Controllers\v1\CountryController;
 use App\Http\Controllers\v1\CurrencyController;
