@@ -18,6 +18,10 @@ return [
             "title" => "Buffet",
             "subtitle" => "Monitoring daily orders and drinks",
         ],
+        "accounting" => [
+            "title" => "Accounting",
+            "subtitle" => "Accounts and invoices management",
+        ],
     ],
 
     "project_overview" => [

@@ -48,6 +48,15 @@ class HomeController extends Controller
                     ],
                     [
                         "id" => "3",
+                        "title" => __("home.main_services.accounting.title"),
+                        "subtitle" => __("home.main_services.accounting.subtitle"),
+                        "icon_url" => "https://api.sharidah.com/icons/hr.png",
+                        "hex_color" => "#10B981",
+                        "is_icon_colored" => false,
+                        "route_name" => "/accounting",
+                    ],
+                    [
+                        "id" => "4",
                         "title" => __("home.main_services.organizational_structure.title"),
                         "subtitle" => __("home.main_services.organizational_structure.subtitle"),
                         "icon_url" => "https://api.sharidah.com/icons/project.png",
@@ -56,7 +65,7 @@ class HomeController extends Controller
                         "route_name" => "/dashboard/organizational-structure",
                     ],
                     [
-                        "id" => "4",
+                        "id" => "5",
                         "title" => __("home.main_services.buffet.title"),
                         "subtitle" => __("home.main_services.buffet.subtitle"),
                         "icon_url" => "https://api.sharidah.com/icons/project.png",
