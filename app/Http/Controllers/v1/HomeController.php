@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\v1;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -139,5 +140,31 @@ class HomeController extends Controller
                 ],
             ],
         ]);
+    }
+
+    public function reports()
+    {
+        return response()->json([
+            'workforce'       => $this->fetchServiceReport('http://workforce-service/api/v1/reports'),
+            'accounting'      => $this->fetchServiceReport('http://accounting-service/api/v1/reports'),
+            'website_setting' => $this->fetchServiceReport('http://website-setting-web/api/v1/reports'),
+        ], 200);
+    }
+
+
+    private function fetchServiceReport(string $url): ?array
+    {
+        try {
+            $response = Http::timeout(3)->get($url);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error("Could not connect to service [{$url}]: " . $e->getMessage());
+            return null;
+        }
     }
 }
