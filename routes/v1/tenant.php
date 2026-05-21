@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\v1\HomeController;
 use App\Http\Controllers\v1\UserController;
 use App\Http\Middleware\InitializeTenantFromHeader;
 use App\Http\Middleware\ProxyRequest;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('api/v1')->middleware('api')->middleware(InitializeTenantFromHeader::class)->group(function () {
     Route::apiResource('users', UserController::class);
     Route::post('employees', [UserController::class, 'createEmployee']);
+    Route::get('reports', [HomeController::class, 'reports']);
 
     $services = [
         'accounting' => 'http://accounting-web/api/v1',
