@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -142,29 +144,35 @@ class HomeController extends Controller
         ]);
     }
 
-    public function reports()
+    public function reports(Request $request)
     {
-        return response()->json([
-            'workforce'       => $this->fetchServiceReport('http://workforce-service/api/v1/reports'),
-            'accounting'      => $this->fetchServiceReport('http://accounting-service/api/v1/reports'),
-            'website_setting' => $this->fetchServiceReport('http://website-setting-web/api/v1/reports'),
-        ], 200);
-    }
+        $tenantId = $request->header('X-Tenant');
+        $token = $request->bearerToken();
 
+        // Fire all three requests concurrently
+        $responses = Http::pool(fn(Pool $pool) => [
+            $pool->as('workforce')->withToken($token)->withHeaders(['X-Tenant' => $tenantId])->get('http://workforce-web/api/v1/reports'),
+            $pool->as('accounting')->withToken($token)->withHeaders(['X-Tenant' => $tenantId])->get('http://accounting-web/api/v1/reports'),
+            $pool->as('website_setting')->withToken($token)->withHeaders(['X-Tenant' => $tenantId])->get('http://website-setting-web/api/v1/reports'),
+        ]);
 
-    private function fetchServiceReport(string $url): ?array
-    {
-        try {
-            $response = Http::timeout(3)->get($url);
+        // Map out the results safely
+        $result = [];
+        foreach (['workforce', 'accounting', 'website_setting'] as $service) {
+            if (isset($responses[$service]) && $responses[$service]->successful()) {
+                $result[$service] = $responses[$service]->json();
+            } else {
+                $result[$service] = null;
 
-            if ($response->successful()) {
-                return $response->json();
+                // Log what actually went wrong
+                if (isset($responses[$service])) {
+                    Log::error("Service [{$service}] failed with status: " . $responses[$service]->status());
+                } else {
+                    Log::error("Service [{$service}] timed out or failed to connect entirely.");
+                }
             }
-
-            return null;
-        } catch (\Exception $e) {
-            Log::error("Could not connect to service [{$url}]: " . $e->getMessage());
-            return null;
         }
+
+        return response()->json($result, 200);
     }
 }
