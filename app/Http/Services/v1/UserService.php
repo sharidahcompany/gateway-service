@@ -5,7 +5,6 @@ namespace App\Http\Services\v1;
 use App\Http\Repositories\v1\UserRepository;
 use App\Http\Services\v1\Kafka\KafkaProducerService;
 use App\Models\OTP;
-use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -23,44 +22,31 @@ class UserService
 
     public function create(array $data)
     {
-
-
         $avatar = $data['avatar'] ?? null;
 
         unset($data['avatar']);
 
-
         $data['status'] = $data['status'] ?? 'active';
-        $data['external_id'] = (string) Str::uuid();
+
+        $data['external_id'] = $data['external_id'] ?? (string) Str::uuid();
 
         if (empty($data['password'])) {
             $data['password'] = Hash::make('Sharidah');
         }
 
-        $user = $this->userRepo->create($data);
-
-        $tenantId = tenant('id');
-
-
-
-        $this->kafka->publish('user_created', $tenantId, $user->toArray());
+        $user = $this->userRepo->create([
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'status' => $data['status'],
+            'external_id' => $data['external_id'],
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'phone' => $data['phone'],
+        ]);
 
         if ($avatar instanceof UploadedFile) {
             $user->addMedia($avatar)->toMediaCollection('avatar');
-        }
-
-        tenancy()->end();
-
-
-
-        $tenant = Tenant::find($tenantId);
-
-
-
-        if ($tenant) {
-            $user = $this->userRepo->create($data);
-
-            $tenant->users()->attach($user->id);
         }
 
         return $user;
@@ -125,5 +111,12 @@ class UserService
     public function findByEmail(string $email)
     {
         return $this->userRepo->findByEmail($email);
+    }
+
+    public function createInCentral(array $data)
+    {
+        tenancy()->end();
+
+        $this->create($data);
     }
 }

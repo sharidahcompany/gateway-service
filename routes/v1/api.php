@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\v1\PermissionController;
 use App\Http\Controllers\v1\HomeController;
 use App\Http\Controllers\v1\AuthController;
 use App\Http\Controllers\v1\CountryController;
@@ -33,7 +34,7 @@ Route::prefix('v1')->middleware([
     Route::post('verify-otp', [AuthController::class, 'verify_otp']);
     Route::post('reset-password', [AuthController::class, 'reset_password']);
     Route::post('change-password', [AuthController::class, 'change_password']);
-    Route::get('permissions', [AuthController::class, 'permissions']);
+    Route::get('permissions', [PermissionController::class, 'index']);
 
 
     Route::apiResource('tenants', TenantController::class)->only('index', 'show');

@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\ForgotPasswordRequest;
 use App\Http\Requests\User\RegisterRequest;
-use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Resources\MeUserResource;
 use App\Http\Resources\UserResource;
@@ -34,38 +33,36 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
 
-           $data = $request->validated();
-           return DB::transaction(function () use ($data) {
+        $data = $request->validated();
+        return DB::transaction(function () use ($data) {
 
-                $user = $this->user_service->create($data);
+            $user = $this->user_service->create($data);
 
-                $token = auth('api')->login($user);
+            $token = auth('api')->login($user);
 
-                event(new UserCreated($user));
+            event(new UserCreated($user));
 
-                $cookie = cookie(
-                    'auth_token',
-                    $token,
-                    60 * 24,
-                    '/',
-                    null,
-                    false,
-                    true,
-                    false,
-                    null
-                );
+            $cookie = cookie(
+                'auth_token',
+                $token,
+                60 * 24,
+                '/',
+                null,
+                false,
+                true,
+                false,
+                null
+            );
 
-                return (new UserResource($user))
-                    ->additional([
-                        'token' => $token,
-                        'message' => trans('auth.register.success'),
-                    ])
-                    ->response()
-                    ->withCookie($cookie)
-                    ->setStatusCode(201);
-
-            });
-        
+            return (new UserResource($user))
+                ->additional([
+                    'token' => $token,
+                    'message' => trans('auth.register.success'),
+                ])
+                ->response()
+                ->withCookie($cookie)
+                ->setStatusCode(201);
+        });
     }
 
     public function login(LoginRequest $request)
@@ -218,9 +215,6 @@ class AuthController extends Controller
         }
     }
 
-
-
-
     public function verify_otp(Request $request)
     {
         try {
@@ -263,8 +257,6 @@ class AuthController extends Controller
         }
     }
 
-
-
     public function reset_password(Request $request)
     {
         try {
@@ -303,8 +295,6 @@ class AuthController extends Controller
         }
     }
 
-
-
     private function checkExpiredOtp($user)
     {
         $lastOtp = OTP::where('user_id', $user->id)
@@ -316,7 +306,6 @@ class AuthController extends Controller
         $otp = $this->generateOtp($user);
         return $this->sendMail($user->email, $user, $otp);
     }
-
 
     private function generateOtp($user)
     {
@@ -376,16 +365,5 @@ class AuthController extends Controller
                 'message' => 'Something went wrong'
             ], 500);
         }
-    }
-
-    public function permissions()
-    {
-        $permissions = Permission::all()->map(function ($permission) {
-            return [
-                'permission' => $permission->name,
-                'name' => trans('permission.' . $permission->name)
-            ];
-        });
-        return response()->json(['data' => $permissions], 200);
     }
 }

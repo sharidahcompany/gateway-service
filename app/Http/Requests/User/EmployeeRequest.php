@@ -14,19 +14,18 @@ class EmployeeRequest extends FormRequest
 
     public function rules(): array
     {
-        $userId = $this->route('user')?->id;
+        $userId = $this->route('user')?->id ?? $this->user()?->id ?? null;
 
         return [
             'user.username'      => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($userId)],
             'user.first_name'    => ['required', 'string', 'max:255'],
             'user.last_name'     => ['required', 'string', 'max:255'],
-            'user.full_name'     => ['nullable', 'string', 'max:255'],
-            'user.password'      => [$this->isMethod('post') ? 'required' : 'nullable', 'string', 'min:8', 'confirmed'],
+            'user.full_name'     => ['required', 'string', 'max:255'],
             'user.email'         => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'user.phone'         => ['required', 'string', 'max:20', Rule::unique('users', 'phone')->ignore($userId)],
-            'user.branch_id'     => ['nullable', 'exists:branches,id'],
-            'user.department_id' => ['nullable', 'exists:departments,id'],
-            'user.career_id'     => ['nullable', 'exists:careers,id'],
+            'user.branch_id'     => ['nullable'],
+            'user.department_id' => ['nullable'],
+            'user.career_id'     => ['nullable'],
             'user.id_number'     => ['nullable', 'string', 'max:255'],
             'user.address'       => ['nullable', 'string', 'max:255'],
             'user.avatar'        => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:2048'],
@@ -44,7 +43,7 @@ class EmployeeRequest extends FormRequest
 
             // Permissions Array
             'permissions'   => ['nullable', 'array'],
-            'permissions.*' => ['string', 'exists:permissions,name'],
+            'permissions.*' => ['string'],
         ];
     }
 }
