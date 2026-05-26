@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:4200', 'https://ceo-app.com', 'https://*.ceo-app.com'],
+    'allowed_origins' => ['http://localhost:4200', 'https://ceo-app.com', 'https://*.ceo-app.com', 'http://localhost:4300'],
 
     'allowed_origins_patterns' => [],
 

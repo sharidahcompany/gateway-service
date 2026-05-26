@@ -175,4 +175,40 @@ class HomeController extends Controller
 
         return response()->json($result, 200);
     }
+
+    public function websiteData(Request $request)
+    {
+        // Capture the dynamic origin from the browser (e.g., http://localhost:45169)
+        // Fallback to '*' only if no origin header is present
+        $origin = $request->headers->get('Origin') ?? '*';
+
+        // Handle preflight checks
+        if ($request->isMethod('OPTIONS')) {
+            return response('', 200)
+                ->header('Access-Control-Allow-Origin', $origin)
+                ->header('Access-Control-Allow-Credentials', 'true') // <--- Required for credentials!
+                ->header('Access-Control-Allow-Methods', 'GET, OPTIONS, POST')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+        }
+
+        $hostname = $request->getHost();
+        $response = Http::withHeaders(['X-Hostname' => $hostname])->get('http://website-setting-web/api/v1/website-data');
+
+        // Success Track
+        if ($response->successful()) {
+            return response()->json($response->json(), $response->status())
+                ->header('Access-Control-Allow-Origin', $origin)
+                ->header('Access-Control-Allow-Credentials', 'true') // <--- Required for credentials!
+                ->header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        }
+
+        // Failure Track
+        return response()->json([
+            'message' => 'Failed to fetch website data from internal service.',
+            'error' => $response->body()
+        ], $response->status())
+            ->header('Access-Control-Allow-Origin', $origin)
+            ->header('Access-Control-Allow-Credentials', 'true') // <--- Required for credentials!
+            ->header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    }
 }

@@ -14,6 +14,7 @@ Route::prefix('api/v1')->middleware('api')->middleware(InitializeTenantFromHeade
     Route::post('employees/invite', [EmployeeController::class, 'invite']);
     Route::get('reports', [HomeController::class, 'reports']);
 
+
     $services = [
         'accounting' => 'http://accounting-web/api/v1',
         'project-management' => 'http://pm-web/api/v1',
