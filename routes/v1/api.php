@@ -6,6 +6,7 @@ use App\Http\Controllers\v1\AuthController;
 use App\Http\Controllers\v1\CountryController;
 use App\Http\Controllers\v1\CurrencyController;
 use App\Http\Controllers\v1\DiscountController;
+use App\Http\Controllers\v1\ExternalObservableController;
 use App\Http\Controllers\v1\FeatureController;
 use App\Http\Controllers\v1\PlanController;
 use App\Http\Controllers\v1\PrivilegeController;
@@ -24,6 +25,13 @@ Route::prefix('v1')->middleware([
     //**********************************************************************************************/
     //get tenants for HR service becuse employees attendace
     Route::get('tenants', [TenantController::class, 'index']);
+    Route::post('external-observables/request-access', [ExternalObservableController::class, 'requestAccess']);
+    Route::get('external-observables/outgoing-requests', [ExternalObservableController::class, 'outgoingRequests']);
+    Route::get('external-observables/incoming-requests', [ExternalObservableController::class, 'incomingRequests']);
+    Route::post('external-observables/requests/{request_id}/accept', [ExternalObservableController::class, 'acceptRequest']);
+    Route::post('external-observables/requests/{request_id}/reject', [ExternalObservableController::class, 'rejectRequest']);
+    Route::get('external-observables/subsidiaries', [ExternalObservableController::class, 'subsidiaries']);
+
     //**********************************************************************************************/
 
     // Authentication
@@ -53,6 +61,7 @@ Route::prefix('v1')->middleware([
 
     Route::apiResource('themes', ThemeController::class)->only('index');
 
+    Route::get('website-data', [HomeController::class, 'websiteData']);
 
     Route::middleware('auth:api')->group(function () {
         Route::get('home', [HomeController::class, 'index']);

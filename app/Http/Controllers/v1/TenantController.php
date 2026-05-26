@@ -21,12 +21,11 @@ class TenantController extends Controller
     {
         $limit = $request->get('limit', 10);
 
-        return Tenant::select('id')
-            ->paginate($limit);
+        return TenantResource::collection(Tenant::latest()->paginate($limit));
     }
 
     public function store(CreateTenantRequest $request)
-    {   
+    {
         $data = $request->validated();
 
         $tenant = $this->tenantService->create($data);
