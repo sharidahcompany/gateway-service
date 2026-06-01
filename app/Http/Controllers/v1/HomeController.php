@@ -178,37 +178,51 @@ class HomeController extends Controller
 
     public function websiteData(Request $request)
     {
-        // Capture the dynamic origin from the browser (e.g., http://localhost:45169)
-        // Fallback to '*' only if no origin header is present
         $origin = $request->headers->get('Origin') ?? '*';
 
         // Handle preflight checks
         if ($request->isMethod('OPTIONS')) {
             return response('', 200)
                 ->header('Access-Control-Allow-Origin', $origin)
-                ->header('Access-Control-Allow-Credentials', 'true') // <--- Required for credentials!
+                ->header('Access-Control-Allow-Credentials', 'true')
                 ->header('Access-Control-Allow-Methods', 'GET, OPTIONS, POST')
                 ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
         }
 
         $hostname = $request->getHost();
-        $response = Http::withHeaders(['X-Hostname' => $hostname])->get('http://website-setting-web/api/v1/website-data');
 
-        // Success Track
-        if ($response->successful()) {
-            return response()->json($response->json(), $response->status())
-                ->header('Access-Control-Allow-Origin', $origin)
-                ->header('Access-Control-Allow-Credentials', 'true') // <--- Required for credentials!
-                ->header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        try {
+            // Added a timeout so your production app doesn't hang if the internal service is down
+            $response = Http::timeout(5)
+                ->withHeaders(['X-Hostname' => $hostname])
+                ->get('http://website-setting-web/api/v1/website-data');
+
+            // Success Track
+            if ($response->successful()) {
+                return response()->json($response->json(), $response->status())
+                    ->header('Access-Control-Allow-Origin', $origin)
+                    ->header('Access-Control-Allow-Credentials', 'true');
+            }
+
+            // Log the actual HTML error locally in storage/logs/laravel.log so you can read it safely
+            Log::error("Internal API failure. Status: {$response->status()}. Body: " . $response->body());
+
+            // Extract a clean snippet of the HTML for the API response
+            $errorSnippet = strip_tags($response->body());
+            $errorSnippet = substr(preg_replace('/\s+/', ' ', $errorSnippet), 0, 200); // First 200 chars
+
+        } catch (\Exception $e) {
+            Log::error("Internal API connection failed: " . $e->getMessage());
+            $errorSnippet = "Could not connect to the internal service host.";
         }
 
         // Failure Track
         return response()->json([
             'message' => 'Failed to fetch website data from internal service.',
-            'error' => $response->body()
-        ], $response->status())
+            'status_code' => isset($response) ? $response->status() : 500,
+            'error_hint' => $errorSnippet
+        ], isset($response) ? $response->status() : 500)
             ->header('Access-Control-Allow-Origin', $origin)
-            ->header('Access-Control-Allow-Credentials', 'true') // <--- Required for credentials!
-            ->header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+            ->header('Access-Control-Allow-Credentials', 'true');
     }
 }
