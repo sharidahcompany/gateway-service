@@ -189,7 +189,9 @@ class HomeController extends Controller
                 ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
         }
 
-        $hostname = $request->getHost();
+        $hostname = $request->header('X-Frontend-Host')
+            ?? parse_url($request->headers->get('Origin'), PHP_URL_HOST)
+            ?? $request->getHost();
 
         try {
             // Added a timeout so your production app doesn't hang if the internal service is down
