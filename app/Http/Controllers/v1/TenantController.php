@@ -12,6 +12,7 @@ use App\Http\Services\v1\TenantService;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
 class TenantController extends Controller
@@ -35,6 +36,16 @@ class TenantController extends Controller
         $tenant->users()->attach($user->id);
 
         $tenant->run(function () use ($user) {
+
+            Artisan::call('db:seed', [
+                '--class' => \Database\Seeders\RoleSeeder::class,
+
+            ]);
+
+            Artisan::call('db:seed', [
+                '--class' => \Database\Seeders\PermissionSeeder::class,
+
+            ]);
             User::create([
                 'external_id' => $user->external_id,
                 'first_name' => $user->first_name,
