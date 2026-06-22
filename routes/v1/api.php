@@ -1,18 +1,19 @@
 <?php
 
-use App\Http\Controllers\v1\PermissionController;
-use App\Http\Controllers\v1\HomeController;
-use App\Http\Controllers\v1\AuthController;
-use App\Http\Controllers\v1\CountryController;
-use App\Http\Controllers\v1\CurrencyController;
-use App\Http\Controllers\v1\DiscountController;
-use App\Http\Controllers\v1\ExternalObservableController;
-use App\Http\Controllers\v1\FeatureController;
-use App\Http\Controllers\v1\PlanController;
-use App\Http\Controllers\v1\PrivilegeController;
-use App\Http\Controllers\v1\TenantController;
-use App\Http\Controllers\v1\ThemeController;
-use App\Http\Controllers\v1\UserController;
+use App\Http\Controllers\v1\Central\AuthController;
+use App\Http\Controllers\v1\Central\CountryController;
+use App\Http\Controllers\v1\Central\CurrencyController;
+use App\Http\Controllers\v1\Central\DiscountController;
+use App\Http\Controllers\v1\Central\ExternalObservableController;
+use App\Http\Controllers\v1\Central\ExternalObserverController;
+use App\Http\Controllers\v1\Central\FeatureController;
+use App\Http\Controllers\v1\Central\HomeController;
+use App\Http\Controllers\v1\Central\PermissionController;
+use App\Http\Controllers\v1\Central\PlanController;
+use App\Http\Controllers\v1\Central\PrivilegeController;
+use App\Http\Controllers\v1\Central\TenantController;
+use App\Http\Controllers\v1\Central\ThemeController;
+use App\Http\Controllers\v1\Central\UserController;
 use App\Http\Middleware\SetLocaleFromHeader;
 use Illuminate\Support\Facades\Route;
 
@@ -25,12 +26,6 @@ Route::prefix('v1')->middleware([
     //**********************************************************************************************/
     //get tenants for HR service becuse employees attendace
     Route::get('tenants', [TenantController::class, 'index']);
-    Route::post('external-observables/request-access', [ExternalObservableController::class, 'requestAccess']);
-    Route::get('external-observables/outgoing-requests', [ExternalObservableController::class, 'outgoingRequests']);
-    Route::get('external-observables/incoming-requests', [ExternalObservableController::class, 'incomingRequests']);
-    Route::post('external-observables/requests/{request_id}/accept', [ExternalObservableController::class, 'acceptRequest']);
-    Route::post('external-observables/requests/{request_id}/reject', [ExternalObservableController::class, 'rejectRequest']);
-    Route::get('external-observables/subsidiaries', [ExternalObservableController::class, 'subsidiaries']);
 
     //**********************************************************************************************/
 
@@ -65,18 +60,21 @@ Route::prefix('v1')->middleware([
 
     Route::middleware('auth:api')->group(function () {
         Route::get('home', [HomeController::class, 'index']);
-        Route::get('me', [AuthController::class, 'me']);
         Route::delete('users', [UserController::class, 'destroy_bulk']);
+        Route::get('me', [AuthController::class, 'me']);
+
+        Route::post('external-observables/request-access', [ExternalObserverController::class, 'requestAccess']);
+        Route::get('external-observables/outgoing-requests', [ExternalObserverController::class, 'outgoingRequests']);
+        Route::get('external-observables/incoming-requests', [ExternalObserverController::class, 'incomingRequests']);
+        Route::post('external-observables/requests/{request_id}/accept', [ExternalObserverController::class, 'acceptRequest']);
+        Route::post('external-observables/requests/{request_id}/reject', [ExternalObserverController::class, 'rejectRequest']);
+        Route::get('external-observables/subsidiaries', [ExternalObserverController::class, 'subsidiaries']);
 
         Route::post('users/email-confirmation', [AuthController::class, 'confirm_email']);
         Route::get('users/send-confirmation-email', [AuthController::class, 'send_confirmation_email']);
         Route::get('users/tenants', [UserController::class, 'tenants']);
 
-
-        Route::post('tenants/upload-logo', [TenantController::class, 'upload_logo']);
-        Route::post('tenants/delete-logo', [TenantController::class, 'delete_logo']);
         Route::apiResource('tenants', TenantController::class)->except('index', 'show');
-
 
         Route::delete('tenants', [TenantController::class, 'destroy_bulk']);
 

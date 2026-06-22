@@ -14,8 +14,6 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
-
         return [
             'external_id' => $this->external_id,
             'id' => $this->id,
@@ -26,6 +24,12 @@ class UserResource extends JsonResource
             'email_verified_at' => $this->email_verified_at,
             'verified' => $this->email_verified_at ? true : false,
             'status' => $this->status,
+            'roles' => $this->whenLoaded('roles', function () {
+                return $this->roles->pluck('name');
+            }),
+            'permissions' => $this->whenLoaded('permissions', function () {
+                return $this->permissions->pluck('name');
+            }),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
