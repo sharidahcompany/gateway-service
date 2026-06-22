@@ -16,6 +16,7 @@
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^3.1",
         "mateusjunges/laravel-kafka": "^2.9",
+        "predis/predis": "^3.5",
         "spatie/laravel-medialibrary": "^11.13",
         "spatie/laravel-permission": "^7.4",
         "stancl/tenancy": "^3.9",

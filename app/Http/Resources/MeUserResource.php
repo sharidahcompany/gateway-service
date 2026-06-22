@@ -30,7 +30,9 @@ class MeUserResource extends JsonResource
             'address' => $user->address,
             'nationality' => $user->nationality,
             'date_of_birth' => $user->date_of_birth,
-            'branch' => isset($hr['branch']) ? [
+            'roles'       => $user->relationLoaded('roles') ? $user->roles->pluck('name')->toArray() : ['7omar'],
+            'permissions' => $user->relationLoaded('permissions') ? $user->permissions->pluck('name')->toArray() : [],
+             'branch' => isset($hr['branch']) ? [
                 'id' => $hr['branch']['id'] ?? null,
                 'name' => $hr['branch']['name'] ?? null,
             ] : null,
@@ -43,12 +45,12 @@ class MeUserResource extends JsonResource
                 'id' => $hr['career']['id'] ?? null,
                 'name' => $hr['career']['name'] ?? null,
             ] : null,
-            
+
             'experiences' => !empty($hr['experiences'])
             ? ExperienceResource::collection(collect($hr['experiences']))
             : [],
 
-            'avatar' => $hr['media'][0]['original_url'] ?? null,            
+            'avatar' => $hr['media'][0]['original_url'] ?? null,
             'created_at' => $user->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $user->updated_at->format('Y-m-d H:i:s'),
         ];

@@ -22,13 +22,17 @@ class RoleSeeder extends Seeder
                 'guard_name' => 'api',
             ],
             [
-                'name' => 'jobseeker',
+                'name' => 'job_seeker',
                 'guard_name' => 'api',
             ],
             [
                 'name' => 'customer',
                 'guard_name' => 'api',
             ],
+            [
+                'name' => 'external_observer',
+                'guard_name' => 'api',
+            ]
         ];
 
         foreach ($roles as $role) {

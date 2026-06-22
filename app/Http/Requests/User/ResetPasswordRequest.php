@@ -3,8 +3,6 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\User;
-use App\Models\OTP;
 
 class ResetPasswordRequest extends FormRequest
 {

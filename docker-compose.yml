@@ -16,6 +16,7 @@ services:
             - ceo_network
         depends_on:
             - gateway-mysql
+            - redis
 
     gateway-web:
         image: nginx:alpine
@@ -47,6 +48,14 @@ services:
             - "3307:3306"
         networks:
             - ceo_network
+    redis:
+        image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'redis_data:/data'
+        networks:
+            - ceo_network
 
     gateway-queue-worker:
         image: ghcr.io/sharidahcompany/gateway-service:latest
@@ -75,3 +84,5 @@ volumes:
     gateway_vendor:
     gateway_storage:
     gateway_cache:
+    redis_data:
+        driver: local
