@@ -41,28 +41,37 @@ class TenantController extends Controller
 
             Artisan::call('db:seed', [
                 '--class' => \Database\Seeders\RoleSeeder::class,
-
             ]);
 
             Artisan::call('db:seed', [
                 '--class' => \Database\Seeders\PermissionSeeder::class,
-
             ]);
 
+            // Clear Spatie's internal registry cache for this tenant context
             app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
-            $tenant_user =  User::create([
+            $tenant_user = User::create([
                 'external_id' => $user->external_id,
-                'first_name' => $user->first_name,
-                'last_name'  => $user->last_name,
-                'username'   => $user->username,
-                'email'      => $user->email,
-                'phone'      => $user->phone,
-                'password'   => $user->password,
-                'status'     => $user->status ?? 'active',
+                'first_name'  => $user->first_name,
+                'last_name'   => $user->last_name,
+                'username'    => $user->username,
+                'email'       => $user->email,
+                'phone'       => $user->phone,
+                'password'    => $user->password,
+                'status'      => $user->status ?? 'active',
             ]);
 
-            $tenant_user->assignRole('owner', 'api');
+            // 💡 FIX: Fetch the exact Role Eloquent object from the tenant DB
+            // and pass it directly to bypass string/guard matching errors.
+            $role = \Spatie\Permission\Models\Role::where('name', 'owner')
+                ->where('guard_name', 'api')
+                ->first();
+
+            if ($role) {
+                $tenant_user->assignRole($role);
+            } else {
+                throw new \Exception("The owner role still does not exist in the tenant database.");
+            }
         });
 
         $kafka_data = [
