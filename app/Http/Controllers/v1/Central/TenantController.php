@@ -48,6 +48,9 @@ class TenantController extends Controller
                 '--class' => \Database\Seeders\PermissionSeeder::class,
 
             ]);
+
+            app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+
             $tenant_user =  User::create([
                 'external_id' => $user->external_id,
                 'first_name' => $user->first_name,
@@ -59,7 +62,7 @@ class TenantController extends Controller
                 'status'     => $user->status ?? 'active',
             ]);
 
-            $tenant_user->assignRole('owner');
+            $tenant_user->assignRole('owner', 'api');
         });
 
         $kafka_data = [
@@ -160,4 +163,5 @@ class TenantController extends Controller
                 'message' => trans('Unauthenticated!')
             ], 401);
         });
-    }}
+    }
+}
