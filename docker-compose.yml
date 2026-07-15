@@ -1,0 +1,23 @@
+services:
+    caddy:
+        image: caddy:2-alpine
+        container_name: gateway-service
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+            - "443:443"
+            - "443:443/udp"
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile
+            - caddy_data:/data
+            - caddy_config:/config
+        networks:
+            - ceo_network
+
+volumes:
+    caddy_data:
+    caddy_config:
+
+networks:
+    ceo_network:
+        external: true
