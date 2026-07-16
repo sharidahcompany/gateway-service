@@ -16,6 +16,6 @@
     }
 
     handle {
-        respond "CEO API Gateway is running!" 200
+        respond "CEO Gateway is running!"
     }
 }
