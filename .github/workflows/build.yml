@@ -46,10 +46,6 @@ jobs:
             set -e
             cd /srv/ceo-app/microservices/gateway-service
 
-            git fetch origin
-            git checkout production
-            git reset --hard origin/production
-
             # Update image
             docker pull ghcr.io/sharidahcompany/gateway-service:latest
 
