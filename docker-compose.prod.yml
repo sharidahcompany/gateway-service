@@ -1,5 +1,5 @@
 services:
-  caddy:
+  gateway-service:
     image: ghcr.io/sharidahcompany/gateway-service:latest
     container_name: gateway-service
     restart: unless-stopped

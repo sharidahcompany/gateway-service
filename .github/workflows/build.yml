@@ -50,6 +50,6 @@ jobs:
             docker pull ghcr.io/sharidahcompany/gateway-service:latest
 
             # Bring up production stack using prod compose file
-            docker compose -f docker-compose.prod.yml up -d --no-deps gateway-service gateway-kafka-consumer
+            docker compose -f docker-compose.prod.yml up -d --no-deps gateway-service  
 
             docker image prune -f
