@@ -1,26 +1,18 @@
 :80 {
      handle /api/auth* {
-        reverse_proxy auth-web:80 {
-            header_up X-Forwarded-Proto https
-        }
+        reverse_proxy auth-web:80
     }
 
      handle /api/workspace* {
-        reverse_proxy workspace-web:80 {
-            header_up X-Forwarded-Proto https
-        }
+        reverse_proxy workspace-web:80
     }
 
     handle /api/finance* {
-        reverse_proxy finance-web:80 {
-            header_up X-Forwarded-Proto https
-        }
+        reverse_proxy finance-web:80
     }
 
     handle /api/website* {
-        reverse_proxy website-web:80 {
-            header_up X-Forwarded-Proto https
-        }
+        reverse_proxy website-web:80
     }
 
     handle {
