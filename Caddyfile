@@ -6,6 +6,10 @@
      handle /api/workspace* {
         reverse_proxy workspace-web:80
     }
+ 
+    handle /api/public* {
+        reverse_proxy workspace-web:80
+    }
 
     handle /api/finance* {
         reverse_proxy finance-web:80
